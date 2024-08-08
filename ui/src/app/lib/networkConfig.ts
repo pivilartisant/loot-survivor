@@ -18,8 +18,7 @@ export const networkConfig = {
       "0x0314924118945405ac0bcd6181457712795c0effc29d8dd3be86d3f3ec62adc1",
     pragmaAddress:
       "0x036031daa264c24520b11d93af622c848b2499b66b41d611bac95e13cfca131a",
-    rendererAddress:
-      "0x036031daa264c24520b11d93af622c848b2499b66b41d611bac95e13cfca131a",
+    rendererAddress: "0x0",
     appUrl: "https://sepolia.lootsurvivor.io",
     beastsViewer: "https://testnet.realms.world/collection/beasts",
     goldenTokenMintUrl: "https://testnet.realms.world/collection/goldenToken",
