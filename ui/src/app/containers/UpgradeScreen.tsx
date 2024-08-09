@@ -91,6 +91,8 @@ export default function UpgradeScreen({
   const dropItems = useUIStore((state) => state.dropItems);
   const entropyReady = useUIStore((state) => state.entropyReady);
   const onKatana = useUIStore((state) => state.onKatana);
+  const chaBoostRemoved = useUIStore((state) => state.chaBoostRemoved);
+  const vitBoostRemoved = useUIStore((state) => state.vitBoostRemoved);
   const setVitBoostRemoved = useUIStore((state) => state.setVitBoostRemoved);
   const setChaBoostRemoved = useUIStore((state) => state.setChaBoostRemoved);
   const pendingMessage = useLoadingStore((state) => state.pendingMessage);
@@ -312,15 +314,6 @@ export default function UpgradeScreen({
     (state) => state.data.itemsByAdventurerQuery?.items || []
   );
 
-  const chaBoostRemoved = calculateChaBoostRemoved(
-    purchaseItems,
-    adventurer!,
-    adventurerItems,
-    equipItems,
-    dropItems
-  );
-  setChaBoostRemoved(chaBoostRemoved);
-
   useEffect(() => {
     const chaBoostRemoved = calculateChaBoostRemoved(
       purchaseItems,
@@ -401,15 +394,6 @@ export default function UpgradeScreen({
     addToCalls(upgradeTx);
     return upgradeTx;
   };
-
-  const vitBoostRemoved = calculateVitBoostRemoved(
-    purchaseItems,
-    adventurer!,
-    adventurerItems,
-    equipItems,
-    dropItems
-  );
-  setVitBoostRemoved(vitBoostRemoved);
 
   const maxHealth = Math.min(100 + totalVitality * vitalityIncrease, 1023);
   const newMaxHealth =
