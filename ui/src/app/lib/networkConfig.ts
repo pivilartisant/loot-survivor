@@ -71,7 +71,7 @@ export const networkConfig = {
     revenueAddress: "0x0",
     pragmaAddress: "0x0",
     rendererAddress: "0x0",
-    appUrl: "https://lootsurvivor.io/",
+    appUrl: "https://sepolia.lootsurvivor.io",
     beastsViewer: "",
     goldenTokenMintUrl: "",
     blockExplorerUrl: "",
