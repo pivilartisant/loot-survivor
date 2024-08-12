@@ -9,6 +9,10 @@ mod tests {
     mod test_game;
     mod mock_randomness;
     mod oz_constants;
+    mod mocks {
+        mod erc20_mocks;
+        mod erc721_mocks;
+    }
 }
 
 #[starknet::contract]
@@ -3312,9 +3316,11 @@ mod Game {
         let chain_id = get_tx_info().unbox().chain_id;
         if chain_id == MAINNET_CHAIN_ID {
             _dollar_to_wei(self, VRF_MAX_CALLBACK_MAINNET.into())
-        } else {
+        } else if chain_id == SEPOLIA_CHAIN_ID {
             // $3 for non-mainnet to prevent interference from gas price swings
             _dollar_to_wei(self, VRF_MAX_CALLBACK_TESTNET.into())
+        } else {
+            panic_with_felt252('network does not support vrf')
         }
     }
 
