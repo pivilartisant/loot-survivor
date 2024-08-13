@@ -73,11 +73,23 @@ const PurchaseHealth = ({
 
   return (
     <div className="flex flex-col sm:flex-row sm:gap-5 items-center justify-center w-full">
-      <span className="flex flex-row items-center">
-        <CoinIcon className="mt-2 sm:mt-1 w-10 h-10 sm:w-8 sm:h-8 fill-current text-terminal-yellow" />
-        <p className="text-4xl sm:text-2xl text-terminal-yellow">
-          {potionCost * potionAmount}
-        </p>
+      <span className="flex flex-row gap-5 items-center uppercase">
+        <div className="flex flex-row items-center">
+          <p className="text-lg sm:text-2xl text-terminal-green">
+            Potion Cost:
+          </p>
+          <CoinIcon className="mt-2 sm:mt-1 w-10 h-10 sm:w-8 sm:h-8 fill-current text-terminal-green" />
+          <p className="text-lg sm:text-2xl text-terminal-green">
+            {potionCost}
+          </p>
+        </div>
+        <div className="flex flex-row items-center">
+          <p className="text-lg sm:text-2xl text-terminal-yellow">Total:</p>
+          <CoinIcon className="mt-2 sm:mt-1 w-10 h-10 sm:w-8 sm:h-8 fill-current text-terminal-yellow" />
+          <p className="text-lg sm:text-2xl text-terminal-yellow">
+            {potionCost * potionAmount}
+          </p>
+        </div>
       </span>
       <div className="flex flex-row gap-5 items-center w-1/2">
         <input
