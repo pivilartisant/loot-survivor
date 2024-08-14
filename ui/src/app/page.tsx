@@ -548,21 +548,23 @@ function Home() {
   useControls();
 
   useEffect(() => {
-    setCondition("a", screen === "play" && hasBeast);
-    setCondition("s", screen === "play" && hasBeast);
-    setCondition("f", screen === "play" && hasBeast);
-    setCondition("g", screen === "play" && hasBeast);
-    setCondition("e", screen === "play" && !hasBeast);
-    setCondition("r", screen === "play" && !hasBeast);
-    setCondition("u", screen === "upgrade");
-    setCondition(
-      "i",
-      screen === "play" ||
-        screen === "beast" ||
-        screen === "upgrade" ||
-        screen === "inventory"
-    );
-  }, [screen, hasBeast]);
+    if (process.env.NEXT_PUBLIC_NETWORK === "arcade") {
+      setCondition("a", screen === "play" && hasBeast);
+      setCondition("s", screen === "play" && hasBeast);
+      setCondition("f", screen === "play" && hasBeast);
+      setCondition("g", screen === "play" && hasBeast);
+      setCondition("e", screen === "play" && !hasBeast);
+      setCondition("r", screen === "play" && !hasBeast);
+      setCondition("u", screen === "upgrade");
+      setCondition(
+        "i",
+        screen === "play" ||
+          screen === "beast" ||
+          screen === "upgrade" ||
+          screen === "inventory"
+      );
+    }
+  }, [screen, hasBeast, network]);
 
   useEffect(() => {
     if (!onboarded) {
