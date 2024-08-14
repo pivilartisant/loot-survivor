@@ -18,6 +18,7 @@ import useTransactionCartStore from "@/app/hooks/useTransactionCartStore";
 import { calculateLevel } from "@/app/lib/utils";
 import { vitalityIncrease } from "@/app/lib/constants";
 import LootIconLoader from "@/app/components/icons/Loader";
+import AutoScrolling from "@/app/components/animations/AutoScrolling";
 
 interface InfoProps {
   adventurer: Adventurer | undefined;
@@ -233,12 +234,16 @@ export default function Info({
 
   const adventurerLevel = calculateLevel(adventurer?.xp ?? 0);
 
+  const scrollableRef = AutoScrolling();
+
   return (
     <>
       {adventurer?.id ? (
         <div className="flex flex-col w-full uppercase h-full p-2 border border-terminal-green">
           <div className="relative flex justify-between w-full text-xl sm:text-2xl lg:text-3xl">
-            {formatAdventurer.name}
+            <span className="w-3/4 overflow-hidden" ref={scrollableRef}>
+              {formatAdventurer.name}
+            </span>
             <span className="relative flex items-center text-terminal-yellow">
               <CoinIcon className="self-center mt-1 w-5 h-5 fill-current" />{" "}
               {formatAdventurer.gold
