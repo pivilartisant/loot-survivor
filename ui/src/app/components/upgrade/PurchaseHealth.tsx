@@ -4,7 +4,8 @@ import { getPotionPrice } from "@/app/lib/utils";
 import { UpgradeStats } from "@/app/types";
 import { CoinIcon } from "@/app/components/icons/Icons";
 import { vitalityIncrease } from "@/app/lib/constants";
-import { HeartIcon } from "@/app/components/icons/Icons";
+import { HeartIcon, PotionArrowIcon } from "@/app/components/icons/Icons";
+import { Button } from "@/app/components/buttons/Button";
 
 interface PurchaseHealthProps {
   upgradeTotalCost: number;
@@ -71,35 +72,87 @@ const PurchaseHealth = ({
     setButtonClicked(true);
   };
 
+  const handleIncrement = () => {
+    if (potionAmount < max) {
+      setPotionAmount(potionAmount + 1);
+      setButtonClicked(true);
+    }
+  };
+
+  const handleDecrement = () => {
+    if (potionAmount > 0) {
+      setPotionAmount(potionAmount - 1);
+      setButtonClicked(true);
+    }
+  };
+
   return (
     <div className="flex flex-col sm:flex-row sm:gap-5 items-center justify-center w-full">
       <span className="flex flex-row gap-5 items-center uppercase">
         <div className="flex flex-row items-center">
-          <p className="text-lg sm:text-2xl text-terminal-green">
-            Potion Cost:
-          </p>
+          <p className="text-lg text-terminal-green">Potion Cost:</p>
           <CoinIcon className="mt-2 sm:mt-1 w-10 h-10 sm:w-8 sm:h-8 fill-current text-terminal-green" />
-          <p className="text-lg sm:text-2xl text-terminal-green">
-            {potionCost}
-          </p>
+          <p className="text-lg text-terminal-green">{potionCost}</p>
         </div>
         <div className="flex flex-row items-center">
-          <p className="text-lg sm:text-2xl text-terminal-yellow">Total:</p>
+          <p className="text-lg text-terminal-yellow">Total:</p>
           <CoinIcon className="mt-2 sm:mt-1 w-10 h-10 sm:w-8 sm:h-8 fill-current text-terminal-yellow" />
-          <p className="text-lg sm:text-2xl text-terminal-yellow">
+          <p className="text-lg text-terminal-yellow">
             {potionCost * potionAmount}
           </p>
         </div>
       </span>
-      <div className="flex flex-row gap-5 items-center w-1/2">
-        <input
-          type="range"
-          min={0}
-          max={max}
-          value={potionAmount}
-          onChange={handleSliderChange}
-          className="w-full h-2 appearance-none cursor-pointer custom-range-input outline"
-        />
+      <div className="flex flex-col sm:flex-row sm:gap-5 items-center sm:w-1/2">
+        <div className="flex flex-row items-center gap-1 w-full">
+          <Button
+            size="xxxs"
+            onClick={handleDecrement}
+            disabled={potionAmount <= 0}
+            className="hidden sm:flex"
+          >
+            <span className="absolute flex items-center justify-center w-4 h-4">
+              <PotionArrowIcon className="transform rotate-180" />
+            </span>
+          </Button>
+          <Button
+            size="xs"
+            onClick={handleDecrement}
+            disabled={potionAmount <= 0}
+            className="sm:hidden"
+          >
+            <span className="absolute flex items-center justify-center w-4 h-4">
+              <PotionArrowIcon className="transform rotate-180" />
+            </span>
+          </Button>
+          <input
+            type="range"
+            min={0}
+            max={max}
+            value={potionAmount}
+            onChange={handleSliderChange}
+            className="w-full h-2 appearance-none cursor-pointer custom-range-input outline"
+          />
+          <Button
+            size="xxxs"
+            onClick={handleIncrement}
+            disabled={potionAmount >= max}
+            className="hidden sm:flex"
+          >
+            <span className="absolute flex items-center justify-center w-4 h-4">
+              <PotionArrowIcon />
+            </span>
+          </Button>
+          <Button
+            size="xs"
+            onClick={handleIncrement}
+            disabled={potionAmount >= max}
+            className="sm:hidden"
+          >
+            <span className="absolute flex items-center justify-center w-4 h-4">
+              <PotionArrowIcon />
+            </span>
+          </Button>
+        </div>
         <span className="flex flex-row gap-1 items-center ">
           <HeartIcon className="self-center mt-1 w-5 h-5 fill-current" />
           {`+${potionAmount * 10}`}

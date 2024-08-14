@@ -440,7 +440,13 @@ export default function UpgradeScreen({
                   {loading ? (
                     <span>Upgrading...</span>
                   ) : (
-                    <span>{bankrupt ? "Bankrupt" : "Next Level"}</span>
+                    <span>
+                      {bankrupt
+                        ? "Bankrupt"
+                        : nextDisabled
+                        ? "Please Select Stats"
+                        : "Next Level"}
+                    </span>
                   )}
                 </Button>
                 <div className="sm:hidden flex flex-row gap-2 w-1/2 sm:w-2/3">
@@ -476,7 +482,9 @@ export default function UpgradeScreen({
                         {bankrupt
                           ? "Bankrupt"
                           : upgradeScreen == 2
-                          ? "Next Level"
+                          ? nextDisabled
+                            ? "Please Select Stats"
+                            : "Next Level"
                           : "Next"}
                       </span>
                     )}

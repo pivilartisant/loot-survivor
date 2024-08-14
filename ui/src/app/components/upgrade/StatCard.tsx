@@ -107,11 +107,13 @@ const StatCard: React.FC<ButtonProps> = ({
             +
           </span>
         </span>
-        <span className="flex flex-row gap-2 items-center">
+        <span className="relative flex flex-row gap-2 items-center">
           <span className="w-5 h-5">{attribute.icon}</span>
           <span className="pl-1">{attribute.abbrev}</span>
           {attribute.upgrades > 0 && (
-            <span className="text-xl">+{attribute.upgrades}</span>
+            <span className="absolute top-[-5px] right-[-15px] text-sm">
+              +{attribute.upgrades}
+            </span>
           )}
         </span>
       </span>
