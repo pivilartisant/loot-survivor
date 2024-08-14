@@ -144,7 +144,7 @@ const MarketplaceRow = ({
   return (
     <tr
       className={
-        "border-b border-terminal-green hover:bg-terminal-green hover:text-terminal-black w-full h-12 sm:h-full"
+        "border-b border-terminal-green hover:bg-terminal-green-50 hover:text-terminal-black w-full h-12 sm:h-full"
       }
     >
       <td className="text-center">{item.item}</td>
@@ -186,6 +186,7 @@ const MarketplaceRow = ({
             (equipFull && bagFull) ||
             (bagFull && !emptySlot)
           }
+          variant="secondary"
         >
           {!enoughGold || itemPrice > (adventurer?.gold ?? 0)
             ? "Not Enough Gold"

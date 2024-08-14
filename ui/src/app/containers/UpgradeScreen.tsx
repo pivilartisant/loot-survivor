@@ -417,8 +417,8 @@ export default function UpgradeScreen({
             />
           </div>
           {!checkTransacting ? (
-            <div className="flex flex-col sm:gap-3 w-full sm:w-2/3 h-full">
-              <div className="w-full flex flex-row items-center justify-between px-2 h-8">
+            <div className="relative flex flex-col w-full sm:w-2/3 h-full">
+              <div className="w-full flex flex-row items-center justify-between px-2 h-1/8">
                 <div className="flex flex-row items-center gap-5">
                   <div className="uppercase sm:text-2xl animate-pulse">
                     Level up!
@@ -493,22 +493,23 @@ export default function UpgradeScreen({
               </div>
               <UpgradeNav activeSection={upgradeScreen} />
 
-              <div className="flex flex-col gap-2 sm:gap-0 items-center h-full">
+              <div className="flex flex-col gap-2 items-center h-7/8">
                 {upgradeScreen === 1 && (
                   <>
-                    <div className="grid grid-cols-2 sm:flex sm:flex-row items-center justify-between p-2 h-3/4 sm:h-[100px] w-full">
+                    <div className="grid grid-cols-2 sm:flex sm:flex-row items-center p-2 h-3/4 sm:h-[80px] w-full">
                       {attributes.map((attribute) => (
-                        <StatCard
-                          key={attribute.key}
-                          min={0}
-                          amount={upgrades[attribute.name]}
-                          setAmount={(value) => {
-                            upgrades[attribute.name] = value;
-                            setUpgrades(upgrades);
-                          }}
-                          attribute={attribute}
-                          upgradeHandler={handleAddUpgradeTx}
-                        />
+                        <span className="sm:w-1/6" key={attribute.key}>
+                          <StatCard
+                            min={0}
+                            amount={upgrades[attribute.name]}
+                            setAmount={(value) => {
+                              upgrades[attribute.name] = value;
+                              setUpgrades(upgrades);
+                            }}
+                            attribute={attribute}
+                            upgradeHandler={handleAddUpgradeTx}
+                          />
+                        </span>
                       ))}
                     </div>
                     <PurchaseHealth
@@ -520,7 +521,7 @@ export default function UpgradeScreen({
                       totalVitality={totalVitality}
                       vitBoostRemoved={vitBoostRemoved}
                     />
-                    <div className="hidden sm:flex items-center w-full h-[400px]">
+                    <div className="hidden sm:flex items-center w-full h-3/4">
                       <MarketplaceScreen
                         upgradeTotalCost={upgradeTotalCost}
                         purchaseItems={purchaseItems}

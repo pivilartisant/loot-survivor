@@ -23,6 +23,7 @@ const StatCard: React.FC<ButtonProps> = ({
   attribute,
   upgradeHandler,
 }) => {
+  const [showInfo, setShowInfo] = useState(false);
   const [buttonClicked, setButtonClicked] = useState(false);
   const prevAmountRef = useRef<{ [key: string]: number }>({ ...ZeroUpgrade });
   const maxNonBoosted =
@@ -83,7 +84,7 @@ const StatCard: React.FC<ButtonProps> = ({
       key={attribute.key}
       className="flex justify-center p-1 border border-terminal-green relative"
     >
-      <span className="flex flex-col items-center justify-center gap-2 h-[105px] sm:h-[80px] w-[120px]">
+      <span className="flex flex-col items-center justify-center gap-2 h-[105px] sm:h-[80px]">
         <span className="flex flex-row gap-2 items-center">
           <span
             onClick={handleDecrement}
@@ -107,7 +108,11 @@ const StatCard: React.FC<ButtonProps> = ({
             +
           </span>
         </span>
-        <span className="relative flex flex-row gap-2 items-center">
+        <span
+          className="relative flex flex-row gap-2 items-center cursor-pointer"
+          onMouseEnter={() => setShowInfo(true)}
+          onMouseLeave={() => setShowInfo(false)}
+        >
           <span className="w-5 h-5">{attribute.icon}</span>
           <span className="pl-1">{attribute.abbrev}</span>
           {attribute.upgrades > 0 && (
@@ -117,6 +122,12 @@ const StatCard: React.FC<ButtonProps> = ({
           )}
         </span>
       </span>
+      {showInfo && (
+        <div className="fixed top-0 left-0 sm:top-40 sm:left-auto sm:right-80 w-full sm:w-80 flex flex-row gap-5 items-center p-2 bg-terminal-black border border-terminal-green text-terminal-green text-sm">
+          <span className="w-10 h-10">{attribute.icon}</span>
+          <span>{attribute.description}</span>
+        </div>
+      )}
     </div>
   );
 };

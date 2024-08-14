@@ -67,6 +67,10 @@ module.exports = {
         'md': '0px 0px 20px -2px rgb(51 255 51 / 1)',
         'lg': '0px 5px 20px -5px rgb(51 255 51 / 1)',
       },
+      height: {
+        '1/8': '12.5%',
+        '7/8': '87.5%',
+      },
     },
   },
   plugins: [

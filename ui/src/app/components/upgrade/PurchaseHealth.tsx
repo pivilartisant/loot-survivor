@@ -109,6 +109,7 @@ const PurchaseHealth = ({
             onClick={handleDecrement}
             disabled={potionAmount <= 0}
             className="hidden sm:flex"
+            variant="ghost"
           >
             <span className="absolute flex items-center justify-center w-4 h-4">
               <PotionArrowIcon className="transform rotate-180" />
@@ -119,6 +120,7 @@ const PurchaseHealth = ({
             onClick={handleDecrement}
             disabled={potionAmount <= 0}
             className="sm:hidden"
+            variant="ghost"
           >
             <span className="absolute flex items-center justify-center w-4 h-4">
               <PotionArrowIcon className="transform rotate-180" />
@@ -137,6 +139,7 @@ const PurchaseHealth = ({
             onClick={handleIncrement}
             disabled={potionAmount >= max}
             className="hidden sm:flex"
+            variant="ghost"
           >
             <span className="absolute flex items-center justify-center w-4 h-4">
               <PotionArrowIcon />
@@ -147,6 +150,7 @@ const PurchaseHealth = ({
             onClick={handleIncrement}
             disabled={potionAmount >= max}
             className="sm:hidden"
+            variant="ghost"
           >
             <span className="absolute flex items-center justify-center w-4 h-4">
               <PotionArrowIcon />
