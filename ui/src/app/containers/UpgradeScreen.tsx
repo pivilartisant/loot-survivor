@@ -395,7 +395,7 @@ export default function UpgradeScreen({
 
   useEffect(() => {
     getNoBoostedStats();
-  }, []);
+  }, [entropyReady]);
 
   const bankrupt = upgradeTotalCost > (adventurer?.gold ?? 0);
 
