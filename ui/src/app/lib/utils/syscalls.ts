@@ -681,6 +681,7 @@ export function createSyscalls({
       setDropItems([]);
       stopLoading(reversedDiscoveries, false, "Explore");
       !onKatana && getEthBalance();
+      setEntropyReady(false);
     } catch (e) {
       console.log(e);
       stopLoading(e, true);
@@ -1058,6 +1059,7 @@ export function createSyscalls({
       setEquipItems([]);
       setDropItems([]);
       !onKatana && getEthBalance();
+      setEntropyReady(false);
     } catch (e) {
       console.log(e);
       stopLoading(e, true);
@@ -1388,6 +1390,7 @@ export function createSyscalls({
 
       stopLoading(notification, false, "Multicall");
       !onKatana && getEthBalance();
+      setEntropyReady(false);
     } catch (e) {
       console.log(e);
       stopLoading(e, true);
