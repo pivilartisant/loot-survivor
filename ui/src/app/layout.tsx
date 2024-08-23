@@ -17,7 +17,6 @@ import Head from "@/app/head";
 import { Analytics } from "@vercel/analytics/react";
 import BurnerLoader from "@/app/components/animations/BurnerLoader";
 import { networkConfig } from "./lib/networkConfig";
-import InterludeScreen from "./containers/InterludeScreen";
 
 type SetupResult = {
   config: {
