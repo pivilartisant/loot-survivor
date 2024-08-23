@@ -24,7 +24,8 @@ interface InterludeScreenProps {
 }
 
 export default function InterludeScreen({ type }: InterludeScreenProps) {
-  const setClosedInterlude = useUIStore((state) => state.setClosedInterlude);
+  const setOpenInterlude = useUIStore((state) => state.setOpenInterlude);
+  const entropyReady = useUIStore((state) => state.entropyReady);
 
   const [loadingMessage, setLoadingMessage] = useState("");
   const [loading, setLoading] = useState(true);
@@ -103,6 +104,9 @@ export default function InterludeScreen({ type }: InterludeScreenProps) {
   ];
 
   useEffect(() => {
+    if (entropyReady) {
+      setLoading(false);
+    }
     const randomLoadingMessageIndex = Math.floor(
       Math.random() * loadingMessages.length
     );
@@ -110,15 +114,7 @@ export default function InterludeScreen({ type }: InterludeScreenProps) {
 
     const randomHintIndex = Math.floor(Math.random() * tutorials.length);
     setCurrentHintIndex(randomHintIndex);
-
-    // Set a timer to change loading to false after 15 seconds
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 15000);
-
-    // Clean up the timer when the component unmounts
-    return () => clearTimeout(timer);
-  }, []);
+  }, [entropyReady]);
 
   return (
     <>
@@ -151,7 +147,7 @@ export default function InterludeScreen({ type }: InterludeScreenProps) {
           <Button
             size={"lg"}
             className="text-2xl animate-pulse"
-            onClick={() => setClosedInterlude(true)}
+            onClick={() => setOpenInterlude(false)}
           >
             Proceed to next level
           </Button>

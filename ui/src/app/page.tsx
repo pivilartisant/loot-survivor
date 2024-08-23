@@ -140,8 +140,8 @@ function Home() {
   const showProfile = useUIStore((state) => state.showProfile);
   const itemEntropy = useUIStore((state) => state.itemEntropy);
   const setItemEntropy = useUIStore((state) => state.setItemEntropy);
-  const closedInterlude = useUIStore((state) => state.closedInterlude);
-  const setClosedInterlude = useUIStore((state) => state.setClosedInterlude);
+  const openInterlude = useUIStore((state) => state.openInterlude);
+  const setOpenInterlude = useUIStore((state) => state.setOpenInterlude);
 
   const { contract: gameContract } = useContract({
     address: networkConfig[network!].gameAddress,
@@ -295,7 +295,6 @@ function Home() {
     setFetchUnlocksEntropy,
     provider,
     network,
-    setClosedInterlude,
   });
 
   const playState = useMemo(
@@ -654,13 +653,17 @@ function Home() {
     return () => clearInterval(interval); // Cleanup on component unmount
   }, [fetchUnlocksEntropy]);
 
+  useEffect(() => {
+    if ((!entropyReady && hasStatUpgrades) || fetchUnlocksEntropy) {
+      setOpenInterlude(true);
+    }
+  }, [entropyReady, hasStatUpgrades, fetchUnlocksEntropy]);
+
   return (
     <>
-      {((!entropyReady && hasStatUpgrades) || fetchUnlocksEntropy) &&
-        !onKatana &&
-        !closedInterlude && (
-          <InterludeScreen type={fetchUnlocksEntropy ? "item" : "level"} />
-        )}
+      {openInterlude && !onKatana && (
+        <InterludeScreen type={fetchUnlocksEntropy ? "item" : "level"} />
+      )}
       <NetworkSwitchError network={network} isWrongNetwork={isWrongNetwork} />
       {isMintingLords && <TokenLoader isToppingUpLords={isMintingLords} />}
       {isWithdrawing && <TokenLoader isWithdrawing={isWithdrawing} />}

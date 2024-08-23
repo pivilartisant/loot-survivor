@@ -135,8 +135,8 @@ type State = {
   setTillDeath: (value: boolean) => void;
   transferredAdventurerIds: number[];
   setTransferredAdventurerIds: (value: number[]) => void;
-  closedInterlude: boolean;
-  setClosedInterlude: (value: boolean) => void;
+  openInterlude: boolean;
+  setOpenInterlude: (value: boolean) => void;
 };
 
 const useUIStore = create<State>((set) => ({
@@ -252,8 +252,8 @@ const useUIStore = create<State>((set) => ({
   transferredAdventurerIds: [],
   setTransferredAdventurerIds: (value) =>
     set({ transferredAdventurerIds: value }),
-  closedInterlude: false,
-  setClosedInterlude: (value) => set({ closedInterlude: value }),
+  openInterlude: false,
+  setOpenInterlude: (value) => set({ openInterlude: value }),
 }));
 
 export default useUIStore;

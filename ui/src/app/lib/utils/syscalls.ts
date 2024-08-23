@@ -102,7 +102,6 @@ export interface SyscallsProps {
   setFetchUnlocksEntropy: (value: boolean) => void;
   provider: ProviderInterface;
   network: Network;
-  setClosedInterlude: (value: boolean) => void;
 }
 
 function handleEquip(
@@ -217,7 +216,6 @@ export function createSyscalls({
   setFetchUnlocksEntropy,
   provider,
   network,
-  setClosedInterlude,
 }: SyscallsProps) {
   const gameData = new GameData();
 
@@ -684,7 +682,6 @@ export function createSyscalls({
       stopLoading(reversedDiscoveries, false, "Explore");
       !onKatana && getEthBalance();
       setEntropyReady(false);
-      setClosedInterlude(false);
     } catch (e) {
       console.log(e);
       stopLoading(e, true);
@@ -910,7 +907,6 @@ export function createSyscalls({
       setDropItems([]);
       !onKatana && getEthBalance();
       setEntropyReady(false);
-      setClosedInterlude(false);
     } catch (e) {
       console.log(e);
       stopLoading(e, true);
@@ -1064,7 +1060,6 @@ export function createSyscalls({
       setDropItems([]);
       !onKatana && getEthBalance();
       setEntropyReady(false);
-      setClosedInterlude(false);
     } catch (e) {
       console.log(e);
       stopLoading(e, true);
@@ -1396,7 +1391,6 @@ export function createSyscalls({
       stopLoading(notification, false, "Multicall");
       !onKatana && getEthBalance();
       setEntropyReady(false);
-      setClosedInterlude(false);
     } catch (e) {
       console.log(e);
       stopLoading(e, true);
