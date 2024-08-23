@@ -17,12 +17,15 @@ import { TopTipsTutorial } from "@/app/components/tutorial/TopTipsTutorial";
 import { ObstaclesTutorial } from "@/app/components/tutorial/ObstaclesTutorial";
 import { DiscoveriesTutorial } from "@/app/components/tutorial/DiscoveriesTutorial";
 import { CollectibleBeastsTutorial } from "@/app/components/tutorial/CollectibleBeatsTutorial";
+import useUIStore from "@/app/hooks/useUIStore";
 
 interface InterludeScreenProps {
   type: string;
 }
 
 export default function InterludeScreen({ type }: InterludeScreenProps) {
+  const setClosedInterlude = useUIStore((state) => state.setClosedInterlude);
+
   const [loadingMessage, setLoadingMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -145,7 +148,11 @@ export default function InterludeScreen({ type }: InterludeScreenProps) {
             <RandomnessLoader loadingSeconds={15} />
           </div>
         ) : (
-          <Button size={"lg"} className="text-2xl animate-pulse">
+          <Button
+            size={"lg"}
+            className="text-2xl animate-pulse"
+            onClick={() => setClosedInterlude(true)}
+          >
             Proceed to next level
           </Button>
         )}

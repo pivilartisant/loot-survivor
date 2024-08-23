@@ -140,6 +140,8 @@ function Home() {
   const showProfile = useUIStore((state) => state.showProfile);
   const itemEntropy = useUIStore((state) => state.itemEntropy);
   const setItemEntropy = useUIStore((state) => state.setItemEntropy);
+  const closedInterlude = useUIStore((state) => state.closedInterlude);
+  const setClosedInterlude = useUIStore((state) => state.setClosedInterlude);
 
   const { contract: gameContract } = useContract({
     address: networkConfig[network!].gameAddress,
@@ -293,6 +295,7 @@ function Home() {
     setFetchUnlocksEntropy,
     provider,
     network,
+    setClosedInterlude,
   });
 
   const playState = useMemo(
@@ -654,7 +657,8 @@ function Home() {
   return (
     <>
       {((!entropyReady && hasStatUpgrades) || fetchUnlocksEntropy) &&
-        !onKatana && (
+        !onKatana &&
+        !closedInterlude && (
           <InterludeScreen type={fetchUnlocksEntropy ? "item" : "level"} />
         )}
       <NetworkSwitchError network={network} isWrongNetwork={isWrongNetwork} />
