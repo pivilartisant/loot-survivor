@@ -76,7 +76,6 @@ export default function RootLayout({
             {introComplete ? (
               <>
                 <LoginIntro />
-                <InterludeScreen type="level" />
                 {createBurner && <BurnerLoader />}
               </>
             ) : (
