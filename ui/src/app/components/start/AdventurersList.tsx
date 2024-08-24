@@ -2,7 +2,12 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Contract, AccountInterface, validateChecksumAddress } from "starknet";
 import { Button } from "@/app/components/buttons/Button";
 import useAdventurerStore from "@/app/hooks/useAdventurerStore";
-import { CoinIcon, HeartIcon, SkullIcon } from "@/app/components/icons/Icons";
+import {
+  CoinIcon,
+  HeartIcon,
+  SkullIcon,
+  ClockIcon,
+} from "@/app/components/icons/Icons";
 import useUIStore from "@/app/hooks/useUIStore";
 import { useQueriesStore } from "@/app/hooks/useQueryStore";
 import LootIconLoader from "@/app/components/icons/Loader";
@@ -194,7 +199,15 @@ export const AdventurersList = ({
                     const tenDaysInSeconds = 10 * 24 * 60 * 60; // 10 days in seconds
                     const futureTimestamp = birthstamp + tenDaysInSeconds;
 
+                    const timeRemainingSeconds =
+                      futureTimestamp - currentTimestamp;
+                    const timeRemainingHours = Math.max(
+                      0,
+                      Math.ceil(timeRemainingSeconds / 3600)
+                    );
+
                     const expired = currentTimestamp >= futureTimestamp;
+                    const dead = adventurer.health === 0;
                     return (
                       <div className="relative w-full" key={index}>
                         {index === selectedIndex && (
@@ -233,14 +246,14 @@ export const AdventurersList = ({
                             setSelectedIndex(index);
                             await handleSelectAdventurer(adventurer.id!);
                           }}
-                          disabled={adventurer?.health === 0 || expired}
+                          disabled={dead || expired}
                         >
-                          {expired && (
+                          {expired && !dead && (
                             <div className="flex items-center justify-center absolute inset-0 bg-terminal-black/50 text-terminal-yellow/50">
                               Expired
                             </div>
                           )}
-                          <div className="aboslute w-full inset-0 flex flex-row justify-between">
+                          <div className="aboslute w-full inset-0 flex flex-row gap-1 justify-between">
                             <p className="w-1/2 overflow-hidden whitespace-nowrap text-ellipsis text-left">{`${adventurer.name} - ${adventurer.id}`}</p>
                             <div className="flex flex-row items-center gap-2">
                               <span className="flex flex-row gap-1">
@@ -256,6 +269,14 @@ export const AdventurersList = ({
                                 <span>{adventurer.gold}</span>
                               </div>
                             </div>
+                            {timeRemainingSeconds > 0 && !dead && (
+                              <div className="relative flex flex-row sm:gap-1 items-center">
+                                <ClockIcon className="w-5 h-5" />
+                                <p className="text-xs">
+                                  {timeRemainingHours} hrs
+                                </p>
+                              </div>
+                            )}
                             {adventurer?.health === 0 && (
                               <SkullIcon className="w-3 fill-current" />
                             )}
