@@ -49,7 +49,7 @@ export const AdventurersList = ({
   const [currentPage, setCurrentPage] = useState<number>(1);
   const skip = (currentPage - 1) * adventurersPerPage;
 
-  const { refetch, setData, isLoading } = useQueriesStore();
+  const { refetch, setData } = useQueriesStore();
 
   const setAdventurer = useAdventurerStore((state) => state.setAdventurer);
 
@@ -93,6 +93,8 @@ export const AdventurersList = ({
     adventurersVariables,
     owner === ""
   );
+
+  const isLoading = adventurersData === undefined;
 
   const adventurers: Adventurer[] = adventurersData?.adventurers ?? [];
 
@@ -179,6 +181,11 @@ export const AdventurersList = ({
               )}
             </span>
             <div className="relative flex flex-col w-full overflow-y-auto default-scroll mx-2 sm:mx-0 border border-terminal-green sm:border-none h-[625px] 2xl:h-[625px]">
+              {isLoading && (
+                <div className="absolute flex top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <LootIconLoader size="w-10" />
+                </div>
+              )}
               <div className="h-7/8 flex flex-col  w-full overflow-y-auto default-scrol">
                 {!isTransferOpen ? (
                   adventurers.map((adventurer, index) => (
@@ -329,22 +336,20 @@ export const AdventurersList = ({
               )}
             </div>
           </div>
-          {adventurers.length > 0 && (
-            <div className="relative hidden sm:block sm:w-6/12 md:w-6/12 lg:w-1/2 w-full h-full">
-              {isLoading.global ? (
-                <div className="flex justify-center items-center h-full">
-                  <LootIconLoader size="w-10" />
-                </div>
-              ) : (
-                <AdventurerListCard
-                  adventurer={adventurers[selectedIndex]}
-                  gameContract={gameContract}
-                  handleSwitchAdventurer={handleSwitchAdventurer}
-                  transferAdventurer={transferAdventurer}
-                />
-              )}
-            </div>
-          )}
+          <div className="relative hidden sm:block sm:w-6/12 md:w-6/12 lg:w-1/2 w-full h-full">
+            {isLoading ? (
+              <div className="flex justify-center items-center h-full">
+                <LootIconLoader size="w-10" />
+              </div>
+            ) : (
+              <AdventurerListCard
+                adventurer={adventurers[selectedIndex]}
+                gameContract={gameContract}
+                handleSwitchAdventurer={handleSwitchAdventurer}
+                transferAdventurer={transferAdventurer}
+              />
+            )}
+          </div>
         </div>
       ) : (
         <p className="text-lg uppercase flex-1">
