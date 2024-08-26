@@ -1,7 +1,6 @@
 export const networkConfig = {
   sepolia: {
-    rpcUrl:
-      "https://starknet-sepolia.blastapi.io/5ef61753-e7c1-4593-bc62-97fdf96f8de5",
+    rpcUrl: "https://api.cartridge.gg/x/starknet/sepolia",
     lsGQLURL: "https://ls-indexer-sepolia.provable.games/graphql",
     tokensGQLURL: "https://testnet.realms.world/api/graphql",
     ethAddress:
@@ -29,8 +28,7 @@ export const networkConfig = {
     accountClassHash: "0x0",
   },
   mainnet: {
-    rpcUrl:
-      "https://starknet-mainnet.blastapi.io/5ef61753-e7c1-4593-bc62-97fdf96f8de5",
+    rpcUrl: "https://api.cartridge.gg/x/starknet/mainnet",
     lsGQLURL: "https://ls-indexer-mainnet.provable.games/graphql",
     tokensGQLURL: "https://realms.world/api/graphql",
     ethAddress:
