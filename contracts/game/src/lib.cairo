@@ -134,7 +134,9 @@ mod Game {
     struct Storage {
         _adventurer: Map::<felt252, Adventurer>,
         _adventurer_client_provider: Map::<felt252, ContractAddress>,
+        _adventurer_dropped_items: Vec<Item>,
         _adventurer_meta: Map::<felt252, AdventurerMetadata>,
+        _adventurer_minter: Map::<felt252, ContractAddress>,
         _adventurer_name: Map::<felt252, felt252>,
         _adventurer_obituary: Map::<felt252, ByteArray>,
         _adventurer_renderer: Map::<felt252, ContractAddress>,
@@ -211,6 +213,7 @@ mod Game {
         #[flat]
         SRC5Event: SRC5Component::Event,
         ClaimedFreeGame: ClaimedFreeGame,
+        NewCollectionTotal: NewCollectionTotal,
     }
 
     /// @title Constructor
@@ -394,7 +397,13 @@ mod Game {
 
             // start the game
             let adventurer_id = _start_game(
-                ref self, weapon, name, custom_renderer, delay_reveal, golden_token_id
+                ref self,
+                weapon,
+                name,
+                custom_renderer,
+                delay_reveal,
+                golden_token_id,
+                launch_tournament_winner_token_id
             );
 
             // store client provider address
@@ -715,7 +724,7 @@ mod Game {
             assert(!_is_expired(@self, adventurer_id), messages::GAME_EXPIRED);
 
             // drop items
-            _drop(@self, ref adventurer, ref bag, adventurer_id, items.clone());
+            _drop(ref self, ref adventurer, ref bag, adventurer_id, items.clone());
 
             // emit dropped items event
             __event_DroppedItems(ref self, adventurer, adventurer_id, bag, items);
@@ -1034,7 +1043,7 @@ mod Game {
 
                 // mint/start the game
                 let adventurer_id = _start_game(
-                    ref self, weapon, name, custom_renderer, delay_stat_reveal, 0
+                    ref self, weapon, name, custom_renderer, delay_stat_reveal, 0, 0
                 );
 
                 // record the collection the adventurer is playing for
@@ -1596,16 +1605,22 @@ mod Game {
         }
 
         // if this game is part of the launch tournament and the tournament is still active
-        let nft_address = self._launch_tournament_participants.read(adventurer_id);
-        if nft_address.is_non_zero() && _is_launch_tournament_active(@self) {
+        let collection_address = self._launch_tournament_participants.read(adventurer_id);
+        if collection_address.is_non_zero() && _is_launch_tournament_active(@self) {
             // get previous score for the collection
-            let previous_score = self._launch_tournament_scores.read(nft_address);
+            let previous_score = self._launch_tournament_scores.read(collection_address);
 
             // calculate new score
             let new_score = previous_score + adventurer.xp.into();
 
             // update the score
-            self._launch_tournament_scores.write(nft_address, new_score);
+            self._launch_tournament_scores.write(collection_address, new_score);
+
+            // get number of games played for this collection
+            let games_played = self._launch_tournament_game_counts.read(collection_address);
+
+            // emit event
+            __event_NewCollectionTotal(ref self, collection_address, new_score, games_played);
         }
     }
 
@@ -1636,8 +1651,8 @@ mod Game {
         self._adventurer_meta.write(adventurer_id, adventurer_meta);
     }
 
-    fn _calculate_payout(bp: u256, price: u128) -> u256 {
-        (bp * price.into()) / 1000
+    fn _calculate_payout(bp: u128, price: u128) -> u128 {
+        (bp * price) / 1000
     }
 
     fn _get_cost_to_play(self: @ContractState) -> u128 {
@@ -1653,37 +1668,27 @@ mod Game {
     fn _get_reward_distribution(self: @ContractState) -> Rewards {
         let cost_to_play = self._cost_to_play.read();
 
-        // Alternate contract reward between PG and Biblo for each game
-        // @dev this reduces total erc20 transfers per game
+        let mut rewards = Rewards {
+            BIBLIO: _calculate_payout(REWARD_DISTRIBUTIONS_BP::CREATOR, cost_to_play),
+            PG: 0,
+            CLIENT_PROVIDER: _calculate_payout(
+                REWARD_DISTRIBUTIONS_BP::CLIENT_PROVIDER, cost_to_play
+            ),
+            FIRST_PLACE: _calculate_payout(REWARD_DISTRIBUTIONS_BP::FIRST_PLACE, cost_to_play),
+            SECOND_PLACE: _calculate_payout(REWARD_DISTRIBUTIONS_BP::SECOND_PLACE, cost_to_play),
+            THIRD_PLACE: _calculate_payout(REWARD_DISTRIBUTIONS_BP::THIRD_PLACE, cost_to_play),
+        };
+
+        // alternate contract rewards between pg and bibio
+        // @dev this is functional equivalent to splitting rewards but saves an erc20 transfer
         let game_count = self._game_count.read();
         let (_, r) = integer::U256DivRem::div_rem(game_count.into(), 2);
         if r == 1 {
-            Rewards {
-                BIBLIO: _calculate_payout(REWARD_DISTRIBUTIONS_BP::CREATOR, cost_to_play),
-                PG: 0,
-                CLIENT_PROVIDER: _calculate_payout(
-                    REWARD_DISTRIBUTIONS_BP::CLIENT_PROVIDER, cost_to_play
-                ),
-                FIRST_PLACE: _calculate_payout(REWARD_DISTRIBUTIONS_BP::FIRST_PLACE, cost_to_play),
-                SECOND_PLACE: _calculate_payout(
-                    REWARD_DISTRIBUTIONS_BP::SECOND_PLACE, cost_to_play
-                ),
-                THIRD_PLACE: _calculate_payout(REWARD_DISTRIBUTIONS_BP::THIRD_PLACE, cost_to_play)
-            }
-        } else {
-            Rewards {
-                BIBLIO: 0,
-                PG: _calculate_payout(REWARD_DISTRIBUTIONS_BP::CREATOR, cost_to_play),
-                CLIENT_PROVIDER: _calculate_payout(
-                    REWARD_DISTRIBUTIONS_BP::CLIENT_PROVIDER, cost_to_play
-                ),
-                FIRST_PLACE: _calculate_payout(REWARD_DISTRIBUTIONS_BP::FIRST_PLACE, cost_to_play),
-                SECOND_PLACE: _calculate_payout(
-                    REWARD_DISTRIBUTIONS_BP::SECOND_PLACE, cost_to_play
-                ),
-                THIRD_PLACE: _calculate_payout(REWARD_DISTRIBUTIONS_BP::THIRD_PLACE, cost_to_play)
-            }
+            rewards.PG = rewards.BIBLIO;
+            rewards.BIBLIO = 0;
         }
+
+        rewards
     }
 
     /// @title Pay for VRF
@@ -1726,65 +1731,74 @@ mod Game {
     fn _process_payment_and_distribute_rewards(
         ref self: ContractState, client_address: ContractAddress
     ) {
-        let rewards = _get_reward_distribution(@self);
-
-        let caller = get_caller_address();
-        let dao_address = self._dao.read();
-        let pg_address = self._pg_address.read();
-        let mut leaderboard = self._leaderboard.read();
-        let mut first_place_address = _get_owner(@self, leaderboard.first.adventurer_id.into());
-        let mut second_place_address = _get_owner(@self, leaderboard.second.adventurer_id.into());
-        let mut third_place_address = _get_owner(@self, leaderboard.third.adventurer_id.into());
-
-        // wait until we have three decent scores before rewarding top scores
-        // this removes incentive to quickly play and die with bots
-        if leaderboard.third.xp < MINIMUM_SCORE_FOR_PAYOUTS {
-            first_place_address = self._pg_address.read();
-            second_place_address = self._dao.read();
-            third_place_address = self._dao.read();
-            leaderboard.first.adventurer_id = 0;
-            leaderboard.second.adventurer_id = 0;
-            leaderboard.third.adventurer_id = 0;
-        }
-
+        let leaderboard = self._leaderboard.read();
+        let cost_to_play = self._cost_to_play.read();
         let payment_dispatcher = self._payment_token_dispatcher.read();
-        if (rewards.BIBLIO != 0) {
-            payment_dispatcher.transfer_from(caller, dao_address, rewards.BIBLIO);
+
+        // if the third place score is less than the minimum score for payouts
+        if leaderboard.third.xp < MINIMUM_SCORE_FOR_PAYOUTS {
+            // burn the payment
+            payment_dispatcher
+                .transfer_from(
+                    get_caller_address(), contract_address_const::<0>(), cost_to_play.into()
+                );
         } else {
-            payment_dispatcher.transfer_from(caller, pg_address, rewards.PG);
-        }
+            // if payouts are active, calculate rewards
+            let rewards = _get_reward_distribution(@self);
 
-        payment_dispatcher.transfer_from(caller, client_address, rewards.CLIENT_PROVIDER);
-        payment_dispatcher.transfer_from(caller, first_place_address, rewards.FIRST_PLACE);
-        payment_dispatcher.transfer_from(caller, second_place_address, rewards.SECOND_PLACE);
-        payment_dispatcher.transfer_from(caller, third_place_address, rewards.THIRD_PLACE);
+            // get owner addresses for each place
+            let first_place_address = _get_owner(@self, leaderboard.first.adventurer_id.into());
+            let second_place_address = _get_owner(@self, leaderboard.second.adventurer_id.into());
+            let third_place_address = _get_owner(@self, leaderboard.third.adventurer_id.into());
 
-        __event_RewardDistribution(
-            ref self,
-            RewardDistribution {
-                first_place: PlayerReward {
-                    adventurer_id: leaderboard.first.adventurer_id.into(),
-                    rank: 1,
-                    amount: rewards.FIRST_PLACE,
-                    address: first_place_address
-                },
-                second_place: PlayerReward {
-                    adventurer_id: leaderboard.second.adventurer_id.into(),
-                    rank: 2,
-                    amount: rewards.SECOND_PLACE,
-                    address: second_place_address
-                },
-                third_place: PlayerReward {
-                    adventurer_id: leaderboard.third.adventurer_id.into(),
-                    rank: 3,
-                    amount: rewards.THIRD_PLACE,
-                    address: third_place_address
-                },
-                client: ClientReward { amount: rewards.CLIENT_PROVIDER, address: client_address },
-                dao: rewards.BIBLIO,
-                pg: rewards.PG
+            // if client provider is not zero, transfer rewards
+            if rewards.CLIENT_PROVIDER != 0 {
+                payment_dispatcher
+                    .transfer_from(
+                        get_caller_address(), client_address, rewards.CLIENT_PROVIDER.into()
+                    );
             }
-        );
+
+            if rewards.BIBLIO != 0 {
+                let dao_address = self._dao.read();
+                payment_dispatcher
+                    .transfer_from(get_caller_address(), dao_address, rewards.BIBLIO.into());
+            }
+
+            // if pg is not zero, transfer rewards
+            if rewards.PG != 0 {
+                let pg_address = self._pg_address.read();
+                payment_dispatcher
+                    .transfer_from(get_caller_address(), pg_address, rewards.PG.into());
+            }
+
+            // if first place is not zero, transfer rewards
+            if rewards.FIRST_PLACE != 0 {
+                payment_dispatcher
+                    .transfer_from(
+                        get_caller_address(), first_place_address, rewards.FIRST_PLACE.into()
+                    );
+            }
+
+            // if second place is not zero, transfer rewards
+            if rewards.SECOND_PLACE != 0 {
+                payment_dispatcher
+                    .transfer_from(
+                        get_caller_address(), second_place_address, rewards.SECOND_PLACE.into()
+                    );
+            }
+
+            // if third place is not zero, transfer rewards
+            if rewards.THIRD_PLACE != 0 {
+                payment_dispatcher
+                    .transfer_from(
+                        get_caller_address(), third_place_address, rewards.THIRD_PLACE.into()
+                    );
+            }
+
+            // emit event
+            __event_RewardDistribution(ref self, rewards, leaderboard, client_address);
+        }
     }
 
     /// @title Start Game
@@ -1804,7 +1818,8 @@ mod Game {
         name: felt252,
         custom_renderer: ContractAddress,
         delay_stat_reveal: bool,
-        golden_token_id: u8
+        golden_token_id: u8,
+        launch_tournament_winner_token_id: u32
     ) -> felt252 {
         // assert game terminal time has not been reached
         _assert_terminal_time_not_reached(@self);
@@ -1820,7 +1835,10 @@ mod Game {
 
         // create meta data for the adventurer
         let adventurer_meta = ImplAdventurerMetadata::new(
-            get_block_timestamp().into(), delay_stat_reveal, golden_token_id
+            get_block_timestamp().into(),
+            delay_stat_reveal,
+            golden_token_id,
+            launch_tournament_winner_token_id
         );
 
         let beast_battle_details = _starter_beast_ambush(ref adventurer, adventurer_id, weapon);
@@ -1839,17 +1857,15 @@ mod Game {
             self._adventurer_renderer.write(adventurer_id, custom_renderer);
         }
 
+        // store the original minter of the adventurer
+        self._adventurer_minter.write(adventurer_id, get_caller_address());
+
+        // mint erc721 token to wrap the game
         self.erc721.mint(get_caller_address(), adventurer_id.into());
 
         // emit events
         __event_StartGame(
-            ref self,
-            adventurer,
-            adventurer_id,
-            adventurer_meta,
-            name,
-            golden_token_id,
-            custom_renderer
+            ref self, adventurer, adventurer_id, adventurer_meta, name, custom_renderer
         );
         __event_AmbushedByBeast(ref self, adventurer, adventurer_id, beast_battle_details);
 
@@ -2795,7 +2811,7 @@ mod Game {
     /// @return A tuple containing two boolean values. The first indicates if the adventurer was
     /// mutated, the second indicates if the bag was mutated.
     fn _drop(
-        self: @ContractState,
+        ref self: ContractState,
         ref adventurer: Adventurer,
         ref bag: Bag,
         adventurer_id: felt252,
@@ -2808,26 +2824,45 @@ mod Game {
                 break ();
             }
 
-            // get and drop item
-            let item_id = *items.at(i);
-            if adventurer.equipment.is_equipped(item_id) {
-                let item = adventurer.equipment.get_item(item_id);
+            // init a blank item to use for dropped item storage
+            let mut item = ImplItem::new(0);
 
-                // if the item was providing a stat boosts, remove it
+            // get item id
+            let item_id = *items.at(i);
+
+            // if item is equipped
+            if adventurer.equipment.is_equipped(item_id) {
+                // get it from adventurer equipment
+                item = adventurer.equipment.get_item(item_id);
+
+                // if the item was providing a stat boosts
                 if item.get_greatness() >= SUFFIX_UNLOCK_GREATNESS {
-                    _remove_item_stat_boost(self, ref adventurer, adventurer_id, item);
+                    // remove it
+                    _remove_item_stat_boost(@self, ref adventurer, adventurer_id, item);
                 }
 
+                // drop the item
                 adventurer.equipment.drop(item_id);
+
+                // set adventurer to mutated
                 adventurer.mutated = true;
             } else {
+                // if item is not equipped, it must be in the bag
+                // but we double check and panic just in case
                 let (item_in_bag, _) = bag.contains(item_id);
                 if item_in_bag {
+                    // get item from the bag
+                    item = bag.get_item(item_id);
+
+                    // remove item from the bag (sets mutated to true)
                     bag.remove_item(item_id);
                 } else {
                     panic_with_felt252('Item not owned by adventurer');
                 }
             }
+
+            // add item to our adventurer dropped item storage
+            self._adventurer_dropped_items.append().write(item);
 
             i += 1;
         };
@@ -3628,8 +3663,11 @@ mod Game {
             player_rank = 3;
         }
 
-        // store rank at death so this can be used for future onchain fun
-        _record_adventurer_rank_at_death(ref self, adventurer_id, player_rank);
+        // if player xp is higher than minimum score for payouts
+        if adventurer.xp >= MINIMUM_SCORE_FOR_PAYOUTS {
+            // record rank at death for onchain fun
+            _record_adventurer_rank_at_death(ref self, adventurer_id, player_rank);
+        }
 
         // emit new high score event
         __event_NewHighScore(ref self, adventurer_id, adventurer, player_rank);
@@ -3675,7 +3713,6 @@ mod Game {
         adventurer_state: AdventurerState,
         adventurer_meta: AdventurerMetadata,
         adventurer_name: felt252,
-        golden_token_id: u8,
         custom_renderer: ContractAddress
     }
 
@@ -3880,8 +3917,8 @@ mod Game {
         second_place: PlayerReward,
         third_place: PlayerReward,
         client: ClientReward,
-        dao: u256,
-        pg: u256
+        dao: u128,
+        pg: u128,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -3940,22 +3977,61 @@ mod Game {
         token_id: u32
     }
 
+    #[derive(Drop, starknet::Event)]
+    struct NewCollectionTotal {
+        collection_address: ContractAddress,
+        xp: u32,
+        games_played: u16,
+    }
+
     #[derive(Drop, Serde)]
     struct PlayerReward {
         adventurer_id: felt252,
         rank: u8,
-        amount: u256,
+        amount: u128,
         address: ContractAddress,
     }
 
     #[derive(Drop, Serde)]
     struct ClientReward {
-        amount: u256,
+        amount: u128,
         address: ContractAddress,
     }
 
-    fn __event_RewardDistribution(ref self: ContractState, event: RewardDistribution) {
-        self.emit(event);
+    fn __event_RewardDistribution(
+        ref self: ContractState,
+        rewards: Rewards,
+        leaderboard: Leaderboard,
+        client_address: ContractAddress
+    ) {
+        let first_place_address = _get_owner(@self, leaderboard.first.adventurer_id.into());
+        let second_place_address = _get_owner(@self, leaderboard.second.adventurer_id.into());
+        let third_place_address = _get_owner(@self, leaderboard.third.adventurer_id.into());
+
+        let reward_distribution = RewardDistribution {
+            first_place: PlayerReward {
+                adventurer_id: leaderboard.first.adventurer_id.into(),
+                rank: 1,
+                amount: rewards.FIRST_PLACE,
+                address: first_place_address
+            },
+            second_place: PlayerReward {
+                adventurer_id: leaderboard.second.adventurer_id.into(),
+                rank: 2,
+                amount: rewards.SECOND_PLACE,
+                address: second_place_address
+            },
+            third_place: PlayerReward {
+                adventurer_id: leaderboard.third.adventurer_id.into(),
+                rank: 3,
+                amount: rewards.THIRD_PLACE,
+                address: third_place_address
+            },
+            client: ClientReward { amount: rewards.CLIENT_PROVIDER, address: client_address },
+            dao: rewards.BIBLIO,
+            pg: rewards.PG,
+        };
+        self.emit(reward_distribution);
     }
     fn __event_RequestedLevelSeed(ref self: ContractState, adventurer_id: felt252, seed: u64) {
         let vrf_address = self._vrf_dispatcher.read().contract_address;
@@ -4015,7 +4091,6 @@ mod Game {
         adventurer_id: felt252,
         adventurer_meta: AdventurerMetadata,
         adventurer_name: felt252,
-        golden_token_id: u8,
         custom_renderer: ContractAddress
     ) {
         let level_seed = _get_level_seed(@self, adventurer_id);
@@ -4024,13 +4099,7 @@ mod Game {
         };
         self
             .emit(
-                StartGame {
-                    adventurer_state,
-                    adventurer_meta,
-                    adventurer_name,
-                    golden_token_id,
-                    custom_renderer
-                }
+                StartGame { adventurer_state, adventurer_meta, adventurer_name, custom_renderer }
             );
     }
 
@@ -4353,6 +4422,12 @@ mod Game {
         token_id: u32
     ) {
         self.emit(ClaimedFreeGame { adventurer_id, collection_address, token_id });
+    }
+
+    fn __event_NewCollectionTotal(
+        ref self: ContractState, collection_address: ContractAddress, xp: u32, games_played: u16
+    ) {
+        self.emit(NewCollectionTotal { collection_address, xp, games_played });
     }
 
     fn _free_game_available(
