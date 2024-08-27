@@ -65,10 +65,15 @@ mod messages {
     const OBITUARY_WINDOW_CLOSED: felt252 = 'obituary window closed';
     const INVALID_ITEM_ID: felt252 = 'invalid item id';
     const LAUNCH_TOURNAMENT_ENDED: felt252 = 'launch tournament has ended';
-    const NFT_COLLECTION_NOT_ELIGIBLE: felt252 = 'nft collection not eligible';
+    const COLLECTION_NOT_ELIGIBLE: felt252 = 'nft collection not eligible';
     const NOT_TOKEN_OWNER: felt252 = 'not token owner';
     const TOKEN_ALREADY_REGISTERED: felt252 = 'token already registered';
     const ITEM_SPECIALS_UNAVAILABLE: felt252 = 'item specials unavailable';
+    const TOURNAMENT_STILL_ACTIVE: felt252 = 'tournament still active';
+    const TOURNAMENT_WINNER_ALREADY_SET: felt252 = 'tournament winner already set';
+    const FREE_GAME_UNAVAILABLE: felt252 = 'free game not yet available';
+    const NOT_PARTICIPATED_IN_TOURNAMENT: felt252 = 'not tournament participant';
+    const COLLECTION_OUT_OF_GAMES: felt252 = 'collection out of games';
 }
 
 #[derive(Drop, Copy)]
