@@ -1,6 +1,7 @@
 export const networkConfig = {
   sepolia: {
-    rpcUrl: "https://api.cartridge.gg/x/starknet/sepolia",
+    rpcUrl:
+      "https://starknet-sepolia.blastapi.io/5ef61753-e7c1-4593-bc62-97fdf96f8de5",
     lsGQLURL: "https://ls-indexer-sepolia.provable.games/graphql",
     tokensGQLURL: "https://testnet.realms.world/api/graphql",
     ethAddress:
