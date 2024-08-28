@@ -219,7 +219,7 @@ export function updateAdventurerOwner({
   timestamp,
 }: any) {
   const entity = {
-    id: checkExistsInt(BigInt(adventurerId)),
+    id: checkExistsInt(parseInt(adventurerId)),
   };
 
   return {
@@ -227,7 +227,7 @@ export function updateAdventurerOwner({
     update: {
       $set: {
         ...entity,
-        owner: checkExistsInt(BigInt(newOwner)),
+        owner: checkExistsInt(BigInt(newOwner).toString(16)),
         timestamp,
       },
     },

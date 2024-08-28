@@ -341,14 +341,16 @@ export default function transform({ header, events }: Block) {
       }
       case TRANSFER: {
         console.log("TRANSFER", "->", "ADVENTURER UPDATES");
-        const { value } = parseTransfer(event.data, 0);
-        return [
-          updateAdventurerOwner({
-            adventurerId: value.tokenId,
-            newOwner: value.toAddress,
-            timestamp: new Date().toISOString(),
-          }),
-        ];
+        const { value } = parseTransfer(event.keys.slice(1), 0);
+        if (parseInt(value.fromAddress) !== 0) {
+          return [
+            updateAdventurerOwner({
+              adventurerId: value.tokenId,
+              newOwner: value.toAddress,
+              timestamp: new Date().toISOString(),
+            }),
+          ];
+        }
       }
       default: {
         console.warn("Unknown event", event.keys[0]);
