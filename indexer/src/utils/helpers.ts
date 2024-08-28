@@ -30,6 +30,7 @@ export function insertAdventurer({
   birthDate,
   deathDate,
   goldenTokenId,
+  launchTournamentWinnerTokenId,
   customRenderer,
   createdTime,
   lastUpdatedTime,
@@ -71,6 +72,9 @@ export function insertAdventurer({
         birthDate: parseInt(birthDate),
         deathDate: parseInt(deathDate),
         goldenTokenId: checkExistsInt(parseInt(goldenTokenId)),
+        launchTournamentWinnerTokenId: checkExistsInt(
+          checkExistsInt(parseInt(launchTournamentWinnerTokenId))
+        ),
         customRenderer: checkExistsInt(parseInt(customRenderer)),
         createdTime: createdTime,
         lastUpdatedTime: lastUpdatedTime,
@@ -609,6 +613,97 @@ export function updateTotalPayout({ adventurerId, timestamp, newPayout }: any) {
       },
       $inc: {
         totalPayout: parseInt(newPayout),
+      },
+    },
+  };
+}
+
+export function updateTokenOwner({ token, tokenId, timestamp, newOwner }: any) {
+  const entity = {
+    token: checkExistsInt(BigInt(token).toString(16)),
+    tokenId: parseInt(tokenId),
+  };
+
+  return {
+    entity,
+    update: {
+      $set: {
+        ...entity,
+        nftOwnerAddress: checkExistsInt(BigInt(newOwner).toString(16)),
+        timestamp,
+      },
+    },
+  };
+}
+
+export function insertFreeGame({
+  adventurerId,
+  gameOwnerAddress,
+  revealed,
+}: any) {
+  const entity = {
+    adventurerId: checkExistsInt(parseInt(adventurerId)),
+  };
+
+  return {
+    entity,
+    update: {
+      $set: {
+        ...entity,
+        token: null,
+        tokenId: null,
+        revealed,
+        gameOwnerAddress: checkExistsInt(BigInt(gameOwnerAddress).toString(16)),
+      },
+    },
+  };
+}
+
+export function updateClaimedFreeGame({ adventurerId, token, tokenId }: any) {
+  const entity = {
+    adventurerId: checkExistsInt(parseInt(adventurerId)),
+  };
+
+  return {
+    entity,
+    update: {
+      $set: {
+        ...entity,
+        token: checkExistsInt(BigInt(token).toString(16)),
+        tokenId: parseInt(tokenId),
+      },
+    },
+  };
+}
+
+export function updateRevealedFreeGame({ adventurerId, revealed }: any) {
+  const entity = {
+    adventurerId: checkExistsInt(parseInt(adventurerId)),
+  };
+
+  return {
+    entity,
+    update: {
+      $set: {
+        ...entity,
+        revealed,
+      },
+    },
+  };
+}
+
+export function updateCollectionTotal({ collection, xp, gamesPlayed }: any) {
+  const entity = {
+    collection: checkExistsInt(BigInt(collection).toString(16)),
+  };
+
+  return {
+    entity,
+    update: {
+      $set: {
+        ...entity,
+        xp: parseInt(xp),
+        gamesPlayed: parseInt(gamesPlayed),
       },
     },
   };
