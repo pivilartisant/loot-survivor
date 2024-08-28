@@ -3,6 +3,7 @@ from typing import List, NewType, Optional, Dict, Union, Any
 import ssl
 import json
 import logging
+import hashlib
 
 import strawberry
 import aiohttp_cors
@@ -367,6 +368,19 @@ class StringFilter:
             "contains": self.contains,
             "startsWith": self.startsWith,
             "endsWith": self.endsWith,
+        }
+    
+@strawberry.input
+class HashFilter:
+    eq: Optional[str] = None
+    _in: Optional[List[str]] = None
+    notIn: Optional[List[str]] = None
+
+    def to_dict(self):
+        return {
+            "eq": self.eq,
+            "_in": self._in,
+            "notIn": self.notIn,
         }
 
 
@@ -1322,6 +1336,7 @@ class TokensFilter:
     tokenId: Optional[FeltValueFilter] = None
     nftOwnerAddress: Optional[HexValueFilter] = None
     timestamp: Optional[DateTimeFilter] = None
+    hash: Optional[HashFilter] = None
 
     def to_dict(self):
         return {
@@ -1331,6 +1346,7 @@ class TokensFilter:
                 self.nftOwnerAddress.to_dict() if self.nftOwnerAddress else None
             ),
             "timestamp": self.timestamp.to_dict() if self.timestamp else None,
+            "hash": self.hash.to_dict() if self.hash else None,
         }
 
 
@@ -1341,6 +1357,7 @@ class ClaimedFreeGamesFilter:
     adventurerId: Optional[FeltValueFilter] = None
     gameOwnerAddress: Optional[HexValueFilter] = None
     revealed: Optional[BooleanFilter] = None
+    hash: Optional[HashFilter] = None
 
     def to_dict(self):
         return {
@@ -1351,6 +1368,7 @@ class ClaimedFreeGamesFilter:
                 self.gameOwnerAddress.to_dict() if self.gameOwnerAddress else None
             ),
             "revealed": self.revealed.to_dict() if self.revealed else None,
+            "hash": self.hash.to_dict() if self.hash else None,
         }
 
 
@@ -1714,6 +1732,7 @@ class TokensOrderByInput:
     tokenId: Optional[OrderByInput] = None
     nftOwnerAddress: Optional[OrderByInput] = None
     timestamp: Optional[OrderByInput] = None
+    hash: Optional[OrderByInput] = None
 
     def to_dict(self):
         return {
@@ -1723,6 +1742,7 @@ class TokensOrderByInput:
                 self.nftOwnerAddress.to_dict() if self.nftOwnerAddress else None
             ),
             "timestamp": self.timestamp.to_dict() if self.timestamp else None,
+            "hash": self.hash.to_dict() if self.hash else None,
         }
 
 
@@ -1733,6 +1753,7 @@ class ClaimedFreeGamesOrderByInput:
     adventurerId: Optional[OrderByInput] = None
     gameOwnerAddress: Optional[OrderByInput] = None
     revealed: Optional[OrderByInput] = None
+    hash: Optional[OrderByInput] = None
 
     def to_dict(self):
         return {
@@ -1743,6 +1764,7 @@ class ClaimedFreeGamesOrderByInput:
                 self.gameOwnerAddress.to_dict() if self.gameOwnerAddress else None
             ),
             "revealed": self.revealed.to_dict() if self.revealed else None,
+            "hash": self.hash.to_dict() if self.hash else None, 
         }
 
 
@@ -2093,6 +2115,7 @@ class Token:
     tokenId: Optional[FeltValue]
     nftOwnerAddress: Optional[HexValue]
     timestamp: Optional[str]
+    hash: Optional[str]
 
     @classmethod
     def from_mongo(cls, data):
@@ -2101,6 +2124,7 @@ class Token:
             tokenId=data["tokenId"],
             nftOwnerAddress=data["nftOwnerAddress"],
             timestamp=data["timestamp"],
+            hash=data["hash"]
         )
 
 
@@ -2111,6 +2135,7 @@ class ClaimedFreeGame:
     adventurerId: Optional[FeltValue]
     gameOwnerAddress: Optional[HexValue]
     revealed: Optional[bool]
+    hash: Optional[str]
 
     @classmethod
     def from_mongo(cls, data):
@@ -2120,8 +2145,8 @@ class ClaimedFreeGame:
             adventurerId=data["adventurerId"],
             gameOwnerAddress=data["gameOwnerAddress"],
             revealed=data["revealed"],
+            hash=data["hash"]
         )
-
 
 @strawberry.type
 class TokenWithFreeGameStatus:
@@ -2207,6 +2232,16 @@ def get_felt_filters(where: FeltValueFilter) -> List[Dict]:
     if where.gte is not None:
         filter["$gte"] = where.gte
 
+    return filter
+
+def get_hash_filters(where: HashFilter) -> Dict:
+    filter = {}
+    if where.eq is not None:
+        filter["$eq"] = where.eq
+    if where._in is not None:
+        filter["$in"] = where._in
+    if where.notIn is not None:
+        filter["$nin"] = where.notIn
     return filter
 
 
@@ -2771,6 +2806,8 @@ async def get_tokens(
                 filter[key] = get_felt_filters(value)
             elif isinstance(value, BooleanFilter):
                 filter[key] = get_bool_filters(value)
+            elif isinstance(value, HashFilter):
+                filter[key] = get_hash_filters(value)
 
     sort_options = {k: v for k, v in orderBy.__dict__.items() if v is not None}
 
@@ -2836,6 +2873,8 @@ async def get_free_games(
                 filter[key] = get_felt_filters(value)
             elif isinstance(value, BooleanFilter):
                 filter[key] = get_bool_filters(value)
+            elif isinstance(value, HashFilter):
+                filter[key] = get_hash_filters(value)
 
     sort_options = {k: v for k, v in orderBy.__dict__.items() if v is not None}
 
@@ -2864,90 +2903,90 @@ async def get_free_games(
     return result
 
 
-async def get_tokens_with_free_game_status(
-    info,
-    where: Optional[TokenWithFreeGameStatusFilter] = {},
-    limit: Optional[int] = 10,
-    skip: Optional[int] = 0,
-    orderBy: Optional[TokenWithFreeGameStatusOrderByInput] = {},
-) -> List[TokenWithFreeGameStatus]:
-    db = info.context["db"]
-    redis = info.context["redis"]
+# async def get_tokens_with_free_game_status(
+#     info,
+#     where: Optional[TokenWithFreeGameStatusFilter] = {},
+#     limit: Optional[int] = 10,
+#     skip: Optional[int] = 0,
+#     orderBy: Optional[TokenWithFreeGameStatusOrderByInput] = {},
+# ) -> List[TokenWithFreeGameStatus]:
+#     db = info.context["db"]
+#     redis = info.context["redis"]
 
-    # Create a unique cache key
-    cache_key = f"tokens_with_free_game_status:{json.dumps(where.to_dict() if where else {})}:{limit}:{skip}:{json.dumps(orderBy.to_dict() if orderBy else {})}"
+#     # Create a unique cache key
+#     cache_key = f"tokens_with_free_game_status:{json.dumps(where.to_dict() if where else {})}:{limit}:{skip}:{json.dumps(orderBy.to_dict() if orderBy else {})}"
 
-    cached_result = await redis.get(cache_key)
-    if cached_result:
-        return [
-            TokenWithFreeGameStatus(**item)
-            for item in json.loads(cached_result.decode("utf-8"))
-        ]
+#     cached_result = await redis.get(cache_key)
+#     if cached_result:
+#         return [
+#             TokenWithFreeGameStatus(**item)
+#             for item in json.loads(cached_result.decode("utf-8"))
+#         ]
     
-    # Separate filters for tokens and claimed_free_games
-    token_filter = {"_cursor.to": None}
-    free_game_filter = {"_cursor.to": None}
+#     # Separate filters for tokens and claimed_free_games
+#     token_filter = {"_cursor.to": None}
+#     free_game_filter = {"_cursor.to": None}
 
-    if where:
-        processed_filters = process_filters(where)
-        for key, value in processed_filters.items():
-            if key in ["token", "tokenId", "nftOwnerAddress"]:
-                if isinstance(value, HexValueFilter):
-                    token_filter[key] = get_hex_filters(value)
-                elif isinstance(value, FeltValueFilter):
-                    token_filter[key] = get_felt_filters(value)
-            elif key in ["gameOwnerAddress", "freeGameUsed", "freeGameRevealed"]:
-                if isinstance(value, HexValueFilter):
-                    free_game_filter[key] = get_hex_filters(value)
-                elif isinstance(value, BooleanFilter):
-                    free_game_filter[key] = get_bool_filters(value)
-            elif key == "adventurerId":
-                token_filter[key] = get_felt_filters(value)
-                free_game_filter[key] = get_felt_filters(value)
+#     if where:
+#         processed_filters = process_filters(where)
+#         for key, value in processed_filters.items():
+#             if key in ["token", "tokenId", "nftOwnerAddress"]:
+#                 if isinstance(value, HexValueFilter):
+#                     token_filter[key] = get_hex_filters(value)
+#                 elif isinstance(value, FeltValueFilter):
+#                     token_filter[key] = get_felt_filters(value)
+#             elif key in ["gameOwnerAddress", "freeGameUsed", "freeGameRevealed"]:
+#                 if isinstance(value, HexValueFilter):
+#                     free_game_filter[key] = get_hex_filters(value)
+#                 elif isinstance(value, BooleanFilter):
+#                     free_game_filter[key] = get_bool_filters(value)
+#             elif key == "adventurerId":
+#                 token_filter[key] = get_felt_filters(value)
+#                 free_game_filter[key] = get_felt_filters(value)
 
-    # Determine which collection to query first based on filters
-    query_free_games_first = bool(free_game_filter)
+#     # Determine which collection to query first based on filters
+#     query_free_games_first = bool(free_game_filter)
 
-    if query_free_games_first:
-        free_games = list(db["claimed_free_games"].find(free_game_filter))
-        token_ids = [(fg["token"], fg["tokenId"]) for fg in free_games]
-        token_filter["token"] = {"$in": [t[0] for t in token_ids]}
-        token_filter["tokenId"] = {"$in": [t[1] for t in token_ids]}
-        tokens = list(db["tokens"].find(token_filter))
-    else:
-        sort_options = {k: v for k, v in (orderBy.__dict__ if orderBy else {}).items() if v is not None}
-        sort_var = next((k for k, v in sort_options.items() if v.asc or v.desc), "timestamp")
-        sort_dir = 1 if sort_options.get(sort_var, OrderByInput()).asc else -1
+#     if query_free_games_first:
+#         free_games = list(db["claimed_free_games"].find(free_game_filter))
+#         token_ids = [(fg["token"], fg["tokenId"]) for fg in free_games]
+#         token_filter["token"] = {"$in": [t[0] for t in token_ids]}
+#         token_filter["tokenId"] = {"$in": [t[1] for t in token_ids]}
+#         tokens = list(db["tokens"].find(token_filter))
+#     else:
+#         sort_options = {k: v for k, v in (orderBy.__dict__ if orderBy else {}).items() if v is not None}
+#         sort_var = next((k for k, v in sort_options.items() if v.asc or v.desc), "timestamp")
+#         sort_dir = 1 if sort_options.get(sort_var, OrderByInput()).asc else -1
 
-        tokens = list(
-            db["tokens"].find(token_filter).skip(skip).limit(limit).sort(sort_var, sort_dir)
-        )
-        token_ids = [(token["token"], token["tokenId"]) for token in tokens]
-        free_games = list(db["claimed_free_games"].find({
-            "token": {"$in": [t[0] for t in token_ids]},
-            "tokenId": {"$in": [t[1] for t in token_ids]},
-            **free_game_filter
-        }))
+#         tokens = list(
+#             db["tokens"].find(token_filter).skip(skip).limit(limit).sort(sort_var, sort_dir)
+#         )
+#         token_ids = [(token["token"], token["tokenId"]) for token in tokens]
+#         free_games = list(db["claimed_free_games"].find({
+#             "token": {"$in": [t[0] for t in token_ids]},
+#             "tokenId": {"$in": [t[1] for t in token_ids]},
+#             **free_game_filter
+#         }))
 
-    # Create a dictionary for quick lookup
-    free_games_dict = {(fg["token"], fg["tokenId"]): fg for fg in free_games}
+#     # Create a dictionary for quick lookup
+#     free_games_dict = {(fg["token"], fg["tokenId"]): fg for fg in free_games}
 
-    # Combine token and free game information
-    result = [
-        TokenWithFreeGameStatus.from_mongo(
-            token, free_games_dict.get((token["token"], token["tokenId"]))
-        )
-        for token in tokens
-    ]
+#     # Combine token and free game information
+#     result = [
+#         TokenWithFreeGameStatus.from_mongo(
+#             token, free_games_dict.get((token["token"], token["tokenId"]))
+#         )
+#         for token in tokens
+#     ]
 
-    # Apply skip and limit after combining (if we queried free_games first)
-    if query_free_games_first:
-        result = result[skip:skip+limit]
+#     # Apply skip and limit after combining (if we queried free_games first)
+#     if query_free_games_first:
+#         result = result[skip:skip+limit]
 
-    # Cache the result
-    await redis.set(cache_key, json.dumps([item.__dict__ for item in result]), ex=60)
+#     # Cache the result
+#     await redis.set(cache_key, json.dumps([item.__dict__ for item in result]), ex=60)
 
-    return result
+#     return result
 
 
 async def get_discoveries_and_battles(
@@ -3223,9 +3262,9 @@ class Query:
     battles: List[Battle] = strawberry.field(resolver=get_battles)
     tokens: List[Token] = strawberry.field(resolver=get_tokens)
     claimedFreeGames: List[ClaimedFreeGame] = strawberry.field(resolver=get_free_games)
-    tokensWithFreeGameStatus: List[TokenWithFreeGameStatus] = strawberry.field(
-        resolver=get_tokens_with_free_game_status
-    )
+    # tokensWithFreeGameStatus: List[TokenWithFreeGameStatus] = strawberry.field(
+    #     resolver=get_tokens_with_free_game_status
+    # )
     discoveriesAndBattles: List[DiscoveryOrBattle] = strawberry.field(
         resolver=get_discoveries_and_battles
     )

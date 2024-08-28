@@ -1,5 +1,5 @@
 import { parseAdventurerState } from "./events.ts";
-import { encodeIntAsBytes, checkExistsInt, getLevelFromXp } from "./encode.ts";
+import { computeHash, checkExistsInt, getLevelFromXp } from "./encode.ts";
 
 export function insertAdventurer({
   id,
@@ -630,6 +630,7 @@ export function updateTokenOwner({ token, tokenId, timestamp, newOwner }: any) {
       $set: {
         ...entity,
         nftOwnerAddress: checkExistsInt(BigInt(newOwner).toString(16)),
+        hash: computeHash(token, tokenId),
         timestamp,
       },
     },
@@ -654,6 +655,7 @@ export function insertFreeGame({
         tokenId: null,
         revealed,
         gameOwnerAddress: checkExistsInt(BigInt(gameOwnerAddress).toString(16)),
+        hash: null,
       },
     },
   };
@@ -671,6 +673,7 @@ export function updateClaimedFreeGame({ adventurerId, token, tokenId }: any) {
         ...entity,
         token: checkExistsInt(BigInt(token).toString(16)),
         tokenId: parseInt(tokenId),
+        hash: computeHash(token, tokenId),
       },
     },
   };
