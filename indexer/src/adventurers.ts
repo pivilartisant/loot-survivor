@@ -82,6 +82,7 @@ const filter = {
     { fromAddress: GAME, keys: [ITEMS_LEVELED_UP] },
     { fromAddress: GAME, keys: [UPGRADES_AVAILABLE] },
     { fromAddress: GAME, keys: [ADVENTURER_UPGRADED] },
+    { fromAddress: GAME, keys: [TRANSFER] },
   ],
 };
 
