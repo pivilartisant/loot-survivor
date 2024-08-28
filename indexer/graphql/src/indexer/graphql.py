@@ -2813,7 +2813,7 @@ async def get_free_games(
 
     # Create a unique cache key based on the query parameters
     cache_key = (
-        f"free_games:{json.dumps(where_dict)}:{limit}:{skip}:{json.dumps(orderBy_dict)}"
+        f"claimed_free_games:{json.dumps(where_dict)}:{limit}:{skip}:{json.dumps(orderBy_dict)}"
     )
     cached_result = await redis.get(cache_key)
 
@@ -2853,7 +2853,7 @@ async def get_free_games(
             break
 
     query = (
-        db["free_games"].find(filter).skip(skip).limit(limit).sort(sort_var, sort_dir)
+        db["claimed_free_games"].find(filter).skip(skip).limit(limit).sort(sort_var, sort_dir)
     )
 
     result = [ClaimedFreeGame.from_mongo(t) for t in query]
@@ -2883,52 +2883,66 @@ async def get_tokens_with_free_game_status(
             TokenWithFreeGameStatus(**item)
             for item in json.loads(cached_result.decode("utf-8"))
         ]
-
-    # Query tokens
+    
+    # Separate filters for tokens and claimed_free_games
     token_filter = {"_cursor.to": None}
+    free_game_filter = {"_cursor.to": None}
+
     if where:
         processed_filters = process_filters(where)
         for key, value in processed_filters.items():
-            if isinstance(value, HexValueFilter):
-                token_filter[key] = get_hex_filters(value)
-            elif isinstance(value, FeltValueFilter):
+            if key in ["token", "tokenId", "nftOwnerAddress"]:
+                if isinstance(value, HexValueFilter):
+                    token_filter[key] = get_hex_filters(value)
+                elif isinstance(value, FeltValueFilter):
+                    token_filter[key] = get_felt_filters(value)
+            elif key in ["gameOwnerAddress", "freeGameUsed", "freeGameRevealed"]:
+                if isinstance(value, HexValueFilter):
+                    free_game_filter[key] = get_hex_filters(value)
+                elif isinstance(value, BooleanFilter):
+                    free_game_filter[key] = get_bool_filters(value)
+            elif key == "adventurerId":
                 token_filter[key] = get_felt_filters(value)
-            elif isinstance(value, DateTimeFilter):
-                token_filter[key] = get_date_filters(value)
-            elif isinstance(value, BooleanFilter):
-                filter[key] = get_bool_filters(value)
+                free_game_filter[key] = get_felt_filters(value)
 
-    sort_options = {
-        k: v for k, v in (orderBy.__dict__ if orderBy else {}).items() if v is not None
-    }
-    sort_var = next(
-        (k for k, v in sort_options.items() if v.asc or v.desc), "timestamp"
-    )
-    sort_dir = 1 if sort_options.get(sort_var, OrderByInput()).asc else -1
+    # Determine which collection to query first based on filters
+    query_free_games_first = bool(free_game_filter)
 
-    tokens = list(
-        db["tokens"].find(token_filter).skip(skip).limit(limit).sort(sort_var, sort_dir)
-    )
+    if query_free_games_first:
+        free_games = list(db["claimed_free_games"].find(free_game_filter))
+        token_ids = [(fg["token"], fg["tokenId"]) for fg in free_games]
+        token_filter["token"] = {"$in": [t[0] for t in token_ids]}
+        token_filter["tokenId"] = {"$in": [t[1] for t in token_ids]}
+        tokens = list(db["tokens"].find(token_filter))
+    else:
+        sort_options = {k: v for k, v in (orderBy.__dict__ if orderBy else {}).items() if v is not None}
+        sort_var = next((k for k, v in sort_options.items() if v.asc or v.desc), "timestamp")
+        sort_dir = 1 if sort_options.get(sort_var, OrderByInput()).asc else -1
 
-    # Query free games for these tokens
-    token_ids = [token["tokenId"] for token in tokens]
-    free_games = {
-        (fg["token"], fg["tokenId"]): fg
-        for fg in db["claimed_free_games"].find(
-            {
-                "token": {"$in": [token["token"] for token in tokens]},
-                "tokenId": {"$in": token_ids},
-            }
+        tokens = list(
+            db["tokens"].find(token_filter).skip(skip).limit(limit).sort(sort_var, sort_dir)
         )
-    }
+        token_ids = [(token["token"], token["tokenId"]) for token in tokens]
+        free_games = list(db["claimed_free_games"].find({
+            "token": {"$in": [t[0] for t in token_ids]},
+            "tokenId": {"$in": [t[1] for t in token_ids]},
+            **free_game_filter
+        }))
+
+    # Create a dictionary for quick lookup
+    free_games_dict = {(fg["token"], fg["tokenId"]): fg for fg in free_games}
 
     # Combine token and free game information
     result = [
         TokenWithFreeGameStatus.from_mongo(
-            token, free_games.get((token["token"], token["tokenId"]))
+            token, free_games_dict.get((token["token"], token["tokenId"]))
         )
         for token in tokens
     ]
+
+    # Apply skip and limit after combining (if we queried free_games first)
+    if query_free_games_first:
+        result = result[skip:skip+limit]
 
     # Cache the result
     await redis.set(cache_key, json.dumps([item.__dict__ for item in result]), ex=60)
