@@ -65,6 +65,7 @@ import TokenLoader from "@/app/components/animations/TokenLoader";
 import CartridgeConnector from "@cartridge/connector";
 import { VRF_WAIT_TIME } from "@/app/lib/constants";
 import InterludeScreen from "@/app/containers/InterludeScreen";
+import CollectionsLeaderboardScreen from "./containers/CollectionsLeaderboardScreen";
 
 const allMenuItems: Menu[] = [
   { id: 1, label: "Start", screen: "start", disabled: false },
@@ -74,6 +75,12 @@ const allMenuItems: Menu[] = [
   { id: 5, label: "Leaderboard", screen: "leaderboard", disabled: false },
   { id: 6, label: "Travel Log", screen: "encounters", disabled: false },
   { id: 7, label: "Guide", screen: "guide", disabled: false },
+  {
+    id: 8,
+    label: "Tournament",
+    screen: "collections leaderboard",
+    disabled: false,
+  },
 ];
 
 const mobileMenuItems: Menu[] = [
@@ -83,6 +90,12 @@ const mobileMenuItems: Menu[] = [
   { id: 4, label: "Upgrade", screen: "upgrade", disabled: false },
   { id: 5, label: "Travel Log", screen: "encounters", disabled: false },
   { id: 6, label: "Guide", screen: "guide", disabled: false },
+  {
+    id: 7,
+    label: "Collections",
+    screen: "collections leaderboard",
+    disabled: false,
+  },
 ];
 
 export default function Main() {
@@ -778,6 +791,9 @@ function Home() {
                 )}
                 {screen === "encounters" && <EncountersScreen />}
                 {screen === "guide" && <GuideScreen />}
+                {screen === "collections leaderboard" && (
+                  <CollectionsLeaderboardScreen />
+                )}
                 {screen === "settings" && <Settings />}
                 {screen === "player" && <Player gameContract={gameContract!} />}
                 {screen === "wallet" && <WalletSelect />}
