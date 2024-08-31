@@ -2795,7 +2795,7 @@ async def get_collection_totals(
         cached_result = cached_result.decode("utf-8")  # Decode the byte string
         return [CollectionTotal.from_mongo(item) for item in json.loads(cached_result)]
 
-    filter = {"cursor.to": None}
+    filter = {"_cursor.to": None}
 
     if where:
         processed_filters = process_filters(where)
@@ -2819,6 +2819,8 @@ async def get_collection_totals(
             sort_var = key
             sort_dir = -1
             break
+
+    logger.info(f"filter: {filter}")
 
     query = (
         db["collection_totals"]
