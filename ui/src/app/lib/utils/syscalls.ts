@@ -628,19 +628,11 @@ export function createSyscalls({
           adventurers: [adventurerDiedEvent.data[0]],
         });
         setAdventurer(adventurerDiedEvent.data[0]);
-        const killedByObstacle =
-          reversedDiscoveries[0]?.discoveryType == "Obstacle" &&
-          reversedDiscoveries[0]?.adventurerHealth == 0;
-        const killedByAmbush =
-          reversedDiscoveries[0]?.ambushed &&
-          reversedDiscoveries[0]?.adventurerHealth == 0;
-        if (killedByObstacle || killedByAmbush) {
-          setDeathNotification(
-            "Explore",
-            discoveries.reverse(),
-            adventurerDiedEvent.data[0]
-          );
-        }
+        setDeathNotification(
+          "Explore",
+          discoveries.reverse(),
+          adventurerDiedEvent.data[0]
+        );
         setScreen("start");
         setStartOption("create adventurer");
       }
