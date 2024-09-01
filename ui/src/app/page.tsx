@@ -59,7 +59,7 @@ import useControls from "@/app/hooks/useControls";
 import { networkConfig } from "@/app/lib/networkConfig";
 import useNetworkAccount from "@/app/hooks/useNetworkAccount";
 import { useController } from "@/app/context/ControllerContext";
-import EncounterTable from "@/app/components/encounters/EncounterTable";
+import EncounterDialog from "@/app/components/encounters/EnounterDialog";
 import { ProfileDialog } from "@/app/components/profile/ProfileDialog";
 import TokenLoader from "@/app/components/animations/TokenLoader";
 import CartridgeConnector from "@cartridge/connector";
@@ -795,7 +795,7 @@ function Home() {
 
                 {encounterTable && (
                   <div className="absolute top-0 right-0 sm:right-32 sm:top-32">
-                    <EncounterTable />
+                    <EncounterDialog />
                   </div>
                 )}
 
