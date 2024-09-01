@@ -794,7 +794,7 @@ function Home() {
                 {screen === "wallet" && <WalletSelect />}
 
                 {encounterTable && (
-                  <div className="absolute top-0 right-0 sm:right-32 sm:top-32">
+                  <div className="absolute top-0 right-0 sm:right-32 sm:top-32 z-10">
                     <EncounterDialog />
                   </div>
                 )}
