@@ -929,10 +929,6 @@ export function getGoldReward(
   beast_level: number,
   xp: number
 ): number {
-  if (xp < 1) {
-    return 4;
-  }
-
   let ring = items?.find(
     (item) => item.slot === "Ring" && item.item === "Gold Ring"
   );
@@ -945,7 +941,7 @@ export function getGoldReward(
     );
   }
 
-  return Math.max(4, base_reward);
+  return base_reward;
 }
 
 function getSpecialName(
