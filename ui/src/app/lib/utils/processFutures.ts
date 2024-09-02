@@ -939,7 +939,7 @@ export function getGoldReward(
 
   let base_reward = Math.max(
     4,
-    Math.floor(((6 - beast_tier) * beast_level) / 2 / 2)
+    Math.floor(((6 - beast_tier) * beast_level) / 2)
   );
 
   if (ring) {
