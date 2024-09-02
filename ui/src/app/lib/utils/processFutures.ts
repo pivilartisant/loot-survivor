@@ -937,10 +937,7 @@ export function getGoldReward(
     (item) => item.slot === "Ring" && item.item === "Gold Ring"
   );
 
-  let base_reward = Math.max(
-    4,
-    Math.floor(((6 - beast_tier) * beast_level) / 2)
-  );
+  let base_reward = Math.floor(((6 - beast_tier) * beast_level) / 2);
 
   if (ring) {
     base_reward += Math.floor(
