@@ -66,6 +66,7 @@ import CartridgeConnector from "@cartridge/connector";
 import { VRF_WAIT_TIME } from "@/app/lib/constants";
 import InterludeScreen from "@/app/containers/InterludeScreen";
 import CollectionsLeaderboardScreen from "./containers/CollectionsLeaderboardScreen";
+import TopUp from "@/app/containers/TopUp";
 
 const allMenuItems: Menu[] = [
   { id: 1, label: "Start", screen: "start", disabled: false },
@@ -131,6 +132,7 @@ function Home() {
   const owner = account?.address ? padAddress(account.address) : "";
   const isWrongNetwork = useUIStore((state) => state.isWrongNetwork);
   const setIsWrongNetwork = useUIStore((state) => state.setIsWrongNetwork);
+  const topUpDialog = useUIStore((state) => state.topUpDialog);
   const showTopUpDialog = useUIStore((state) => state.showTopUpDialog);
   const setTopUpAccount = useUIStore((state) => state.setTopUpAccount);
   const setSpecialBeast = useUIStore((state) => state.setSpecialBeast);
@@ -300,6 +302,7 @@ function Home() {
     setAdventurer,
     setStartOption,
     ethBalance,
+    lordsBalance,
     showTopUpDialog,
     setTopUpAccount,
     account: account!,
@@ -696,6 +699,18 @@ function Home() {
           <div className="flex flex-col w-full">
             {specialBeastDefeated && (
               <SpecialBeast beastsContract={beastsContract!} />
+            )}
+            {topUpDialog && (
+              <TopUp
+                ethBalance={ethBalance}
+                lordsBalance={lordsBalance}
+                costToPlay={costToPlay}
+                mintLords={mintLords}
+                gameContract={gameContract!}
+                lordsContract={lordsContract!}
+                ethContract={ethContract!}
+                showTopUpDialog={showTopUpDialog}
+              />
             )}
             {!spawnLoader && hash && (
               <div className="sm:hidden">
