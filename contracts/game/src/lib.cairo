@@ -67,6 +67,7 @@ mod Game {
     };
     use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -80,14 +81,17 @@ mod Game {
     use super::{FreeGameTokenType, ImplFreeGameTokenType, LaunchTournamentCollections};
     use super::game::{
         interfaces::{
-            IGame, IERC721Mixin, ILeetLoot, ILeetLootDispatcher, ILeetLootDispatcherTrait,
+            IGame, IERC721Mixin, IBeasts, IBeastsDispatcher, IBeastsDispatcherTrait,
+            IDelegateAccountDispatcher, IDelegateAccountDispatcherTrait
         },
         constants::{
             messages, Rewards, REWARD_DISTRIBUTIONS_BP, COST_TO_PLAY, STARTER_BEAST_ATTACK_DAMAGE,
             MINIMUM_DAMAGE_FROM_BEASTS, MAINNET_CHAIN_ID, SEPOLIA_CHAIN_ID, KATANA_CHAIN_ID,
-            MINIMUM_SCORE_FOR_PAYOUTS, SECONDS_IN_DAY, TARGET_PRICE_USD_CENTS, VRF_COST_PER_GAME,
-            VRF_MAX_CALLBACK_MAINNET, VRF_MAX_CALLBACK_TESTNET, PRAGMA_LORDS_KEY,
-            PRAGMA_PUBLISH_DELAY, PRAGMA_NUM_WORDS, GAME_EXPIRY_DAYS, OBITUARY_EXPIRY_DAYS, MAX_U64
+            MINIMUM_SCORE_FOR_PAYOUTS, MINIMUM_SCORE_FOR_DEATH_RANK, SECONDS_IN_DAY,
+            TARGET_PRICE_USD_CENTS, VRF_COST_PER_GAME, VRF_MAX_CALLBACK_MAINNET,
+            VRF_MAX_CALLBACK_TESTNET, PRAGMA_LORDS_KEY, PRAGMA_PUBLISH_DELAY, PRAGMA_NUM_WORDS,
+            GAME_EXPIRY_DAYS, OBITUARY_EXPIRY_DAYS, MAX_U64,
+            CONTROLLER_DELEGATE_ACCOUNT_INTERFACE_ID
         },
         RenderContract::{
             IRenderContract, IRenderContractDispatcher, IRenderContractDispatcherTrait
@@ -142,7 +146,7 @@ mod Game {
         _adventurer_renderer: Map::<felt252, ContractAddress>,
         _adventurer_vrf_allowance: Map::<felt252, u128>,
         _bag: Map::<felt252, Bag>,
-        _beasts_dispatcher: ILeetLootDispatcher,
+        _beasts_dispatcher: IBeastsDispatcher,
         _cost_to_play: u128,
         _dao: ContractAddress,
         _default_renderer: ContractAddress,
@@ -280,7 +284,7 @@ mod Game {
         }
 
         if beasts_address.is_non_zero() {
-            let beasts_dispatcher = ILeetLootDispatcher { contract_address: beasts_address };
+            let beasts_dispatcher = IBeastsDispatcher { contract_address: beasts_address };
             self._beasts_dispatcher.write(beasts_dispatcher);
         }
 
@@ -1540,8 +1544,9 @@ mod Game {
         // if beast beast level is above collectible threshold
         if beast.combat_spec.level >= BEAST_SPECIAL_NAME_LEVEL_UNLOCK.into()
             && _network_supports_vrf() {
-            // mint beast to owner of the adventurer
-            _mint_beast(@self, beast, _get_owner(@self, adventurer_id));
+                            // mint beast to owner of the adventurer or controller delegate if set 
+            let mint_to_address = _get_delegate_or_owner(@self, adventurer_id);
+            _mint_beast(@self, beast, mint_to_address);
         }
     }
 
@@ -1742,11 +1747,11 @@ mod Game {
 
         // if the third place score is less than the minimum score for payouts
         if leaderboard.third.xp < MINIMUM_SCORE_FOR_PAYOUTS {
-            // burn the payment
-            payment_dispatcher
-                .transfer_from(
-                    get_caller_address(), contract_address_const::<0>(), cost_to_play.into()
-                );
+            // send tokens to PG address
+            // @dev this is expected to be a trivial amount and exists to remove incentive to play
+            // and die fast
+            let pg_address = self._pg_address.read();
+            payment_dispatcher.transfer_from(get_caller_address(), pg_address, cost_to_play.into());
         } else {
             // if payouts are active, calculate rewards
             let rewards = _get_reward_distribution(@self);
@@ -3514,8 +3519,6 @@ mod Game {
     ) {
         let erc721_dispatcher = IERC721Dispatcher { contract_address: nft_collection_address };
         let owner = erc721_dispatcher.owner_of(token_id.into());
-
-        // TODO: add support for delegate address
         assert(owner == get_caller_address(), messages::NOT_TOKEN_OWNER);
     }
 
@@ -3627,6 +3630,33 @@ mod Game {
         self.erc721.ERC721_owners.read(adventurer_id.into())
     }
 
+    /// @title Get Delegate or Owner
+    /// @notice Gets the delegate account address if the owner implements the controller delegate
+    /// account interface.
+    /// @dev This function is called when the delegate account address is needed.
+    /// @param self A reference to the ContractState object.
+    /// @param adventurer_id A felt252 representing the unique ID of the adventurer.
+    /// @return A ContractAddress representing the delegate account address or the owner address.
+    fn _get_delegate_or_owner(self: @ContractState, adventurer_id: felt252) -> ContractAddress {
+        // get the nft owner address
+        let owner_address = _get_owner(self, adventurer_id);
+
+        // check if the owner account implements the controller delegate account interface
+        let src5_dispatcher = ISRC5Dispatcher { contract_address: owner_address };
+        if src5_dispatcher.supports_interface(CONTROLLER_DELEGATE_ACCOUNT_INTERFACE_ID) {
+            // if it does, get the delegate account address
+            let controller_delegate = IDelegateAccountDispatcher { contract_address: owner_address }
+                .delegate_account();
+            if controller_delegate.is_non_zero() {
+                // and return it if it's non zero
+                return controller_delegate;
+            }
+        }
+
+        // otherwise return the owner address
+        return owner_address;
+    }
+
     fn _get_rank(self: @ContractState, adventurer_id: felt252) -> u8 {
         let leaderboard = self._leaderboard.read();
         if (leaderboard.first.adventurer_id == adventurer_id.try_into().unwrap()) {
@@ -3677,7 +3707,7 @@ mod Game {
         }
 
         // if player xp is higher than minimum score for payouts
-        if adventurer.xp >= MINIMUM_SCORE_FOR_PAYOUTS {
+        if adventurer.xp >= MINIMUM_SCORE_FOR_DEATH_RANK {
             // record rank at death for onchain fun
             _record_adventurer_rank_at_death(ref self, adventurer_id, player_rank);
         }
@@ -4457,7 +4487,6 @@ mod Game {
         ref self: ContractState, token_type: FreeGameTokenType, token_id: u32
     ) {
         // assert caller owns token
-        // TODO: support Delegate Address
         let token_dispatcher = _get_token_dispatcher(@self, token_type);
         let token_owner = token_dispatcher.owner_of(token_id.into());
         assert(token_owner == get_caller_address(), messages::NOT_OWNER_OF_TOKEN);
