@@ -1190,6 +1190,7 @@ class BeastsFilter:
     health: Optional[FeltValueFilter] = None
     level: Optional[FeltValueFilter] = None
     tier: Optional[FeltValueFilter] = None
+    power: Optional[FeltValueFilter] = None
     slainOnTime: Optional[DateTimeFilter] = None
     createdTime: Optional[DateTimeFilter] = None
     lastUpdatedTime: Optional[DateTimeFilter] = None
@@ -1206,6 +1207,7 @@ class BeastsFilter:
             "health": self.health.to_dict() if self.health else None,
             "level": self.level.to_dict() if self.level else None,
             "tier": self.tier.to_dict() if self.tier else None,
+            "power": self.power.to_dict() if self.power else None,
             "slainOnTime": self.slainOnTime.to_dict() if self.slainOnTime else None,
             "createdTime": self.createdTime.to_dict() if self.createdTime else None,
             "lastUpdatedTime": (
@@ -1604,6 +1606,7 @@ class BeastsOrderByInput:
     health: Optional[OrderByInput] = None
     level: Optional[OrderByInput] = None
     tier: Optional[OrderByInput] = None
+    power: Optional[OrderByInput] = None
     slainOnTime: Optional[OrderByInput] = None
     createdTime: Optional[OrderByInput] = None
     lastUpdatedTime: Optional[OrderByInput] = None
@@ -1620,6 +1623,7 @@ class BeastsOrderByInput:
             "health": self.health.to_dict() if self.health else None,
             "level": self.level.to_dict() if self.level else None,
             "tier": self.tier.to_dict() if self.tier else None,
+            "power": self.power.to_dict() if self.power else None,
             "slainOnTime": self.slainOnTime.to_dict() if self.slainOnTime else None,
             "createdTime": self.createdTime.to_dict() if self.createdTime else None,
             "lastUpdatedTime": (
@@ -1995,6 +1999,7 @@ class Beast:
     health: Optional[FeltValue] = None
     level: Optional[FeltValue] = None
     tier: Optional[FeltValue] = None
+    power: Optional[FeltValue] = None
     slainOnTime: Optional[str] = None
     createdTime: Optional[str] = None
     lastUpdatedTime: Optional[str] = None
@@ -2012,6 +2017,7 @@ class Beast:
             health=data["health"],
             level=data["level"],
             tier=data["tier"],
+            power=data["power"],
             slainOnTime=data["slainOnTime"],
             createdTime=data["createdTime"],
             lastUpdatedTime=data["lastUpdatedTime"],

@@ -124,7 +124,8 @@ const EncounterTable = () => {
                   )
                 : false;
 
-            let levelUp = calculateLevel(encounter.nextXp) > adventurer?.level!;
+            let levelUps =
+              calculateLevel(encounter.nextXp) - adventurer?.level!;
 
             return (
               <tr>
@@ -303,10 +304,13 @@ const EncounterTable = () => {
                 <td className="py-2 border-b border-terminal-green">
                   <span className="flex flex-row gap-1 justify-center">
                     {encounter.nextXp}{" "}
-                    <span className={`${"text-terminal-yellow"}`}>
-                      {levelUp && (
-                        <DownArrowIcon className="h-4 transform rotate-180" />
-                      )}
+                    <span className="text-terminal-yellow flex">
+                      {Array.from({ length: levelUps }).map((_, index) => (
+                        <DownArrowIcon
+                          key={index}
+                          className="h-4 transform rotate-180"
+                        />
+                      ))}
                     </span>
                   </span>
                 </td>
