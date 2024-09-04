@@ -41,7 +41,7 @@ export default function transform({ header, events }: Block) {
   return events.flatMap(({ event, receipt }) => {
     switch (event.keys[0]) {
       case TRANSFER: {
-        const { value } = parseTransfer(event.keys.slice(1), 0);
+        const { value } = parseTransfer(event.data, 0);
         console.log("TRANSFER", "->", "TOKENS UPDATES");
         return updateTokenOwner({
           token: event.fromAddress,
