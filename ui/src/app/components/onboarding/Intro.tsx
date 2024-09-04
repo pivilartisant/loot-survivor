@@ -87,6 +87,7 @@ const Intro = () => {
                   handleOnboarded();
                   setNetwork("katana");
                 }}
+                disabled={true}
               >
                 Play on Testnet
               </Button>
