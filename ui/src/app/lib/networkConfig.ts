@@ -45,7 +45,7 @@ export const networkConfig = {
     revenueAddress:
       "0x036cE487952f25878a0158bA4A0C2Eb5eb66f0282567163a4B893A0EA5847D2d",
     pragmaAddress:
-      "0x036031daa264c24520b11d93af622c848b2499b66b41d611bac95e13cfca131a",
+      "0x2a85bd616f912537c50a49a4076db02c00b29b2cdc8a197ce92ed1837fa875b",
     rendererAddress: "0x0",
     appUrl: "https://lootsurvivor.io/",
     beastsViewer: "https://realms.world/collection/beasts",
