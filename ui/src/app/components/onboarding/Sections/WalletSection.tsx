@@ -4,6 +4,7 @@ import { displayAddress, padAddress, copyToClipboard } from "@/app/lib/utils";
 import { useConnect, useDisconnect } from "@starknet-react/core";
 import useNetworkAccount from "@/app/hooks/useNetworkAccount";
 import useUIStore from "@/app/hooks/useUIStore";
+import { getWalletConnectors } from "@/app/lib/connectors";
 
 interface WalletSectionProps {
   step: number;
@@ -15,6 +16,11 @@ const WalletSection = ({ step }: WalletSectionProps) => {
   const { disconnect } = useDisconnect();
   const username = useUIStore((state) => state.username);
   const isController = useUIStore((state) => state.isController);
+
+  const walletConnectors = getWalletConnectors(connectors);
+  const cartridgeConnector = connectors.find(
+    (connector) => connector.id === "cartridge"
+  );
 
   return (
     <>
@@ -49,7 +55,15 @@ const WalletSection = ({ step }: WalletSectionProps) => {
           Login with your Starknet account to play
         </p>
         <div className="hidden sm:flex flex-col">
-          {connectors.map((connector, index) => (
+          <Button
+            onClick={() => {
+              disconnect();
+              connect({ connector: cartridgeConnector });
+            }}
+          >
+            Login with Cartridge Controller
+          </Button>
+          {walletConnectors.map((connector, index) => (
             <Button
               disabled={address !== undefined}
               onClick={() => {
@@ -58,16 +72,20 @@ const WalletSection = ({ step }: WalletSectionProps) => {
               }}
               key={index}
             >
-              {connector.id === "braavos" || connector.id === "argentX"
-                ? `Login With ${connector.id}`
-                : connector.id === "argentWebWallet"
-                ? "Login With Email"
-                : "Login with Cartridge Controller"}
+              {`Login With ${connector.id}`}
             </Button>
           ))}
         </div>
         <div className="sm:hidden flex flex-col gap-2">
-          {connectors.map((connector, index) => (
+          <Button
+            onClick={() => {
+              disconnect();
+              connect({ connector: cartridgeConnector });
+            }}
+          >
+            Login with Cartridge Controller
+          </Button>
+          {walletConnectors.map((connector, index) => (
             <Button
               size={"lg"}
               disabled={address !== undefined}
@@ -77,11 +95,7 @@ const WalletSection = ({ step }: WalletSectionProps) => {
               }}
               key={index}
             >
-              {connector.id === "braavos" || connector.id === "argentX"
-                ? `Login With ${connector.id}`
-                : connector.id === "argentWebWallet"
-                ? "Login With Email"
-                : "Login with Cartridge Controller"}
+              {`Login With ${connector.id}`}
             </Button>
           ))}
         </div>
