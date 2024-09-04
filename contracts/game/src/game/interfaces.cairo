@@ -139,6 +139,10 @@ trait IGame<TContractState> {
     fn get_adventurer_renderer(self: @TContractState, adventurer_id: felt252) -> ContractAddress;
     fn get_adventurer_vrf_allowance(self: @TContractState, adventurer_id: felt252) -> u128;
     fn get_vrf_premiums_address(self: @TContractState) -> ContractAddress;
+    fn free_vrf_promotion_active(self: @TContractState) -> bool;
+    fn is_launch_tournament_active(self: @TContractState) -> bool;
+    fn get_launch_tournament_winner(self: @TContractState) -> ContractAddress;
+    fn get_launch_tournament_end_time(self: @TContractState) -> u64;
 }
 
 #[starknet::interface]
