@@ -53,6 +53,14 @@ def serialize_felt(value):
     return value
 
 
+def parse_token_id(value):
+    return value
+
+
+def serialize_token_id(value):
+    return value
+
+
 def parse_string(value):
     # Assuming the input is a regular string
     # Convert it to bytes and then to a hexadecimal string
@@ -212,6 +220,12 @@ HexValue = strawberry.scalar(
 
 FeltValue = strawberry.scalar(
     NewType("FeltValue", str), parse_value=parse_felt, serialize=serialize_felt
+)
+
+TokenIdValue = strawberry.scalar(
+    NewType("TokenIdValue", str),
+    parse_value=parse_token_id,
+    serialize=serialize_token_id,
 )
 
 StringValue = strawberry.scalar(
@@ -416,6 +430,28 @@ class FeltValueFilter:
     lte: Optional[FeltValue] = None
     gt: Optional[FeltValue] = None
     gte: Optional[FeltValue] = None
+
+    def to_dict(self):
+        return {
+            "eq": self.eq,
+            "_in": self._in,
+            "notIn": self.notIn,
+            "lt": self.lt,
+            "lte": self.lte,
+            "gt": self.gt,
+            "gte": self.gte,
+        }
+
+
+@strawberry.input
+class TokenIdValueFilter:
+    eq: Optional[TokenIdValue] = None
+    _in: Optional[List[TokenIdValue]] = None
+    notIn: Optional[List[TokenIdValue]] = None
+    lt: Optional[TokenIdValue] = None
+    lte: Optional[TokenIdValue] = None
+    gt: Optional[TokenIdValue] = None
+    gte: Optional[TokenIdValue] = None
 
     def to_dict(self):
         return {
@@ -2159,7 +2195,7 @@ class CollectionTotal:
 @strawberry.type
 class Token:
     token: Optional[HexValue]
-    tokenId: Optional[FeltValue]
+    tokenId: Optional[TokenIdValue]
     nftOwnerAddress: Optional[HexValue]
     timestamp: Optional[str]
     hash: Optional[str]
@@ -2880,6 +2916,8 @@ async def get_tokens(
             elif isinstance(value, DateTimeFilter):
                 filter[key] = get_date_filters(value)
             elif isinstance(value, FeltValueFilter):
+                filter[key] = get_felt_filters(value)
+            elif isinstance(value, TokenIdValueFilter):
                 filter[key] = get_felt_filters(value)
             elif isinstance(value, BooleanFilter):
                 filter[key] = get_bool_filters(value)

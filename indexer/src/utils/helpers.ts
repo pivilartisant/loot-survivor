@@ -622,7 +622,7 @@ export function updateTotalPayout({ adventurerId, timestamp, newPayout }: any) {
 export function updateTokenOwner({ token, tokenId, timestamp, newOwner }: any) {
   const entity = {
     token: checkExistsInt(BigInt(token).toString(16)),
-    tokenId: parseInt(tokenId),
+    tokenId: tokenId.toString(),
   };
 
   return {
