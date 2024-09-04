@@ -68,7 +68,6 @@ const Intro = () => {
                   setLoginScreen(true);
                   setNetwork(network! as Network);
                 }}
-                disabled={network == "sepolia" ? false : true}
               >
                 Play on {network}
               </Button>
