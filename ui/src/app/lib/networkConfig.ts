@@ -37,17 +37,16 @@ export const networkConfig = {
     gameAddress:
       "0x0305f26ad19e0a10715d9f3137573d3a543de7b707967cd85d11234d6ec0fb7e",
     lordsAddress:
-      "0x072599086bffce6593a2e08169c21d23564f08be1e1d0b8e05a9768f20469a3f",
+      "0x0124aeb495b947201f5fac96fd1138e326ad86195b98df6dec9009158a533b49",
     beastsAddress:
-      "0x020c7c02c973ffa3a48fb78e9472b679c72c11b59512f524154ade0a39f54136",
+      "0x0158160018d590d93528995b340260e65aedd76d28a686e9daa5c4e8fad0c5dd",
     goldenTokenAddress:
-      "0x07626660faba349aad9ad2aaa0ff8645c079fa8e043a168d640d92472806eeac",
+      "0x04f5e296c805126637552cf3930e857f380e7c078e8f00696de4fc8545356b1d",
     revenueAddress:
-      "0x0314924118945405ac0bcd6181457712795c0effc29d8dd3be86d3f3ec62adc1",
+      "0x036cE487952f25878a0158bA4A0C2Eb5eb66f0282567163a4B893A0EA5847D2d",
     pragmaAddress:
       "0x036031daa264c24520b11d93af622c848b2499b66b41d611bac95e13cfca131a",
-    rendererAddress:
-      "0x036031daa264c24520b11d93af622c848b2499b66b41d611bac95e13cfca131a",
+    rendererAddress: "0x0",
     appUrl: "https://lootsurvivor.io/",
     beastsViewer: "https://realms.world/collection/beasts",
     goldenTokenMintUrl: "https://realms.world/collection/goldenToken",
