@@ -222,11 +222,8 @@ function Home() {
       const username = await (
         connector as unknown as CartridgeConnector
       ).username();
-      const delegateAccount = await (
-        connector as unknown as CartridgeConnector
-      ).delegateAccount();
       setUsername(username || "");
-      setControllerDelegate(delegateAccount!.toString() || "");
+      setControllerDelegate("");
     };
     if (connector?.id.includes("cartridge")) {
       setIsController(true);
