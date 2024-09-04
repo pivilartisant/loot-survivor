@@ -48,7 +48,8 @@ export const networkConfig = {
       "0x2a85bd616f912537c50a49a4076db02c00b29b2cdc8a197ce92ed1837fa875b",
     rendererAddress: "0x0",
     appUrl: "https://lootsurvivor.io/",
-    beastsViewer: "https://realms.world/collection/beasts",
+    beastsViewer:
+      "https://market.realms.world/collection/0x0158160018d590d93528995b340260e65aedd76d28a686e9daa5c4e8fad0c5dd",
     goldenTokenMintUrl: "https://realms.world/collection/goldenToken",
     blockExplorerUrl: "https:/voyager.online/",
     faucetUrl: "https://blastapi.io/faucets/starknet-sepolia-eth",
