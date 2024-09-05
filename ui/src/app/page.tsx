@@ -240,7 +240,7 @@ function Home() {
 
   const getBalances = async () => {
     const balances = await fetchBalances(
-      indexAddress(address ?? "0x0").toLowerCase(),
+      address ?? "0x0",
       ethContract,
       lordsContract,
       gameContract
@@ -250,10 +250,7 @@ function Home() {
   };
 
   const getEthBalance = async () => {
-    const ethBalance = await fetchEthBalance(
-      indexAddress(address ?? "0x0").toLowerCase(),
-      ethContract
-    );
+    const ethBalance = await fetchEthBalance(address ?? "0x0", ethContract);
     setEthBalance(ethBalance);
   };
 
@@ -338,7 +335,7 @@ function Home() {
 
   const ownerVariables = useMemo(() => {
     return {
-      owner: indexAddress(owner).toLowerCase(),
+      owner: owner,
       health: 0,
       skip: 0,
     };
