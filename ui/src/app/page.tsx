@@ -10,7 +10,7 @@ import LeaderboardScreen from "@/app/containers/LeaderboardScreen";
 import EncountersScreen from "@/app/containers/EncountersScreen";
 import GuideScreen from "@/app/containers/GuideScreen";
 import UpgradeScreen from "@/app/containers/UpgradeScreen";
-import { padAddress } from "@/app/lib/utils";
+import { indexAddress, padAddress } from "@/app/lib/utils";
 import { TxActivity } from "@/app/components/navigation/TxActivity";
 import useLoadingStore from "@/app/hooks/useLoadingStore";
 import useAdventurerStore from "@/app/hooks/useAdventurerStore";
@@ -67,6 +67,7 @@ import { VRF_WAIT_TIME } from "@/app/lib/constants";
 import InterludeScreen from "@/app/containers/InterludeScreen";
 import CollectionsLeaderboardScreen from "./containers/CollectionsLeaderboardScreen";
 import TopUp from "@/app/containers/TopUp";
+import { checkCartridgeConnector } from "@/app/lib/connectors";
 
 const allMenuItems: Menu[] = [
   { id: 1, label: "Start", screen: "start", disabled: false },
@@ -240,7 +241,9 @@ function Home() {
 
   const getBalances = async () => {
     const balances = await fetchBalances(
-      address ?? "0x0",
+      checkCartridgeConnector(connector)
+        ? indexAddress(owner ?? "0x0").toLowerCase()
+        : owner ?? "0x0",
       ethContract,
       lordsContract,
       gameContract
@@ -335,7 +338,9 @@ function Home() {
 
   const ownerVariables = useMemo(() => {
     return {
-      owner: owner,
+      owner: checkCartridgeConnector(connector)
+        ? indexAddress(owner ?? "0x0").toLowerCase()
+        : owner ?? "0x0",
       health: 0,
       skip: 0,
     };
