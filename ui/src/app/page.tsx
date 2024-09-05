@@ -67,7 +67,6 @@ import { VRF_WAIT_TIME } from "@/app/lib/constants";
 import InterludeScreen from "@/app/containers/InterludeScreen";
 import CollectionsLeaderboardScreen from "./containers/CollectionsLeaderboardScreen";
 import TopUp from "@/app/containers/TopUp";
-import { checkCartridgeConnector } from "@/app/lib/connectors";
 
 const allMenuItems: Menu[] = [
   { id: 1, label: "Start", screen: "start", disabled: false },
@@ -241,7 +240,7 @@ function Home() {
 
   const getBalances = async () => {
     const balances = await fetchBalances(
-      owner ?? "0x0",
+      indexAddress(owner ?? "0x0").toLowerCase(),
       ethContract,
       lordsContract,
       gameContract
@@ -336,9 +335,7 @@ function Home() {
 
   const ownerVariables = useMemo(() => {
     return {
-      owner: checkCartridgeConnector(connector)
-        ? indexAddress(owner ?? "0x0").toLowerCase()
-        : owner ?? "0x0",
+      owner: indexAddress(owner ?? "0x0").toLowerCase(),
       health: 0,
       skip: 0,
     };
