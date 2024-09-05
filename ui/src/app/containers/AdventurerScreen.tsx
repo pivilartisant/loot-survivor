@@ -14,6 +14,8 @@ import {
 } from "@/app/hooks/graphql/queries";
 import { indexAddress, padAddress } from "@/app/lib/utils";
 import useNetworkAccount from "@/app/hooks/useNetworkAccount";
+import { checkCartridgeConnector } from "../lib/connectors";
+import { useConnect } from "@starknet-react/core";
 
 interface AdventurerScreenProps {
   spawn: (
@@ -58,6 +60,7 @@ export default function AdventurerScreen({
   const setStartOption = useUIStore((state) => state.setStartOption);
   const network = useUIStore((state) => state.network);
   const { account } = useNetworkAccount();
+  const { connector } = useConnect();
   const owner = account?.address ? padAddress(account.address) : "";
 
   const adventurersByOwnerCountData = useCustomQuery(
@@ -65,7 +68,9 @@ export default function AdventurerScreen({
     "adventurersByOwnerCountQuery",
     getAdventurersByOwnerCount,
     {
-      owner: indexAddress(owner),
+      owner: checkCartridgeConnector(connector)
+        ? indexAddress(owner ?? "0x0").toLowerCase()
+        : owner ?? "0x0",
     },
     owner === ""
   );
@@ -75,7 +80,9 @@ export default function AdventurerScreen({
     "aliveAdventurersByOwnerCountQuery",
     getAliveAdventurersCount,
     {
-      owner: indexAddress(owner),
+      owner: checkCartridgeConnector(connector)
+        ? indexAddress(owner ?? "0x0").toLowerCase()
+        : owner ?? "0x0",
     },
     owner === ""
   );
