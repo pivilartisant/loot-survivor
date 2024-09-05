@@ -41,8 +41,6 @@ export const ProfileDialog = ({
   const resetData = useQueriesStore((state) => state.resetData);
   const { account, address } = useNetworkAccount();
   const [copied, setCopied] = useState(false);
-  const [copiedEth, setCopiedEth] = useState(false);
-  const [copiedLords, setCopiedLords] = useState(false);
   const [copiedDelegate, setCopiedDelegate] = useState(false);
   const username = useUIStore((state) => state.username);
   const controllerDelegate = useUIStore((state) => state.controllerDelegate);
@@ -53,18 +51,6 @@ export const ProfileDialog = ({
     copyToClipboard(padAddress(address!));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleCopyLords = () => {
-    copyToClipboard(lordsContractAddress);
-    setCopiedLords(true);
-    setTimeout(() => setCopiedLords(false), 2000);
-  };
-
-  const handleCopyEth = () => {
-    copyToClipboard(ethContractAddress);
-    setCopiedEth(true);
-    setTimeout(() => setCopiedEth(false), 2000);
   };
 
   const handleCopyDelegate = () => {
@@ -171,14 +157,6 @@ export const ProfileDialog = ({
                   <span className="uppercase">
                     {displayAddress(lordsContractAddress)}
                   </span>
-                  <Button size={"xs"} onClick={handleCopyLords}>
-                    Copy
-                  </Button>
-                  {copiedLords && (
-                    <span className="absolute right-[-50px] uppercase">
-                      Copied!
-                    </span>
-                  )}
                 </span>
                 <span className="flex flex-col relative">
                   <span className="flex flex-row items-center gap-2 relative">
@@ -186,14 +164,6 @@ export const ProfileDialog = ({
                     <span className="uppercase">
                       {displayAddress(ethContractAddress)}
                     </span>
-                    <Button size={"xs"} onClick={handleCopyEth}>
-                      Copy
-                    </Button>
-                    {copiedEth && (
-                      <span className="absolute right-[-50px] uppercase">
-                        Copied!
-                      </span>
-                    )}
                   </span>
                 </span>
               </div>
