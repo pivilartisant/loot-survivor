@@ -162,8 +162,8 @@ export const ProfileDialog = ({
                 Topup
               </h2>
               <p className="hidden sm:block sm:text-lg">
-                Low on tokens? Copy the address and above and transfer tokens
-                from the wallet of your choice.
+                Low on tokens? Below are the token addresses, make sure you
+                transfer to the address at the top!
               </p>
               <div className="flex flex-col gap-2">
                 <span className="flex flex-row items-center gap-2 relative">
