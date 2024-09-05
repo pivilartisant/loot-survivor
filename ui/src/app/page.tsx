@@ -241,9 +241,7 @@ function Home() {
 
   const getBalances = async () => {
     const balances = await fetchBalances(
-      checkCartridgeConnector(connector)
-        ? indexAddress(owner ?? "0x0").toLowerCase()
-        : owner ?? "0x0",
+      owner ?? "0x0",
       ethContract,
       lordsContract,
       gameContract
