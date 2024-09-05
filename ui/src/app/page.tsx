@@ -10,7 +10,7 @@ import LeaderboardScreen from "@/app/containers/LeaderboardScreen";
 import EncountersScreen from "@/app/containers/EncountersScreen";
 import GuideScreen from "@/app/containers/GuideScreen";
 import UpgradeScreen from "@/app/containers/UpgradeScreen";
-import { indexAddress, padAddress } from "@/app/lib/utils";
+import { padAddress } from "@/app/lib/utils";
 import { TxActivity } from "@/app/components/navigation/TxActivity";
 import useLoadingStore from "@/app/hooks/useLoadingStore";
 import useAdventurerStore from "@/app/hooks/useAdventurerStore";
