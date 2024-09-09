@@ -21,7 +21,7 @@ export async function setup({ rpcUrl, network, setCreateBurner }: SetupProps) {
     ),
     accountClassHash: networkConfig[network!].accountClassHash,
     rpcProvider: dojoProvider,
-    feeTokenAddress: "0x0",
+    feeTokenAddress: "",
   });
 
   await burnerManager.init();

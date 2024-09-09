@@ -1932,20 +1932,20 @@
   resolved "https://registry.yarnpkg.com/@cbor-extract/cbor-extract-win32-x64/-/cbor-extract-win32-x64-2.2.0.tgz#4b3f07af047f984c082de34b116e765cb9af975f"
   integrity sha512-l2M+Z8DO2vbvADOBNLbbh9y5ST1RY5sqkWOg/58GkUPBYou/cuNZ68SGQ644f1CvZ8kcOxyZtw06+dxWHIoN/w==
 
-"@dojoengine/core@0.7.9":
-  version "0.7.9"
-  resolved "https://registry.yarnpkg.com/@dojoengine/core/-/core-0.7.9.tgz#b13f70428d5ade7abf456a4fab68a98e5ac22e15"
-  integrity sha512-FAGfDxhun8A+yx9QCKpHeIGQBK1qgJ1P3zLPqVD7zaf7XJJRF2ycR/B/I6ai0okADukwIx1yli0d+ZG4nnwztw==
+"@dojoengine/core@1.0.0-alpha.12":
+  version "1.0.0-alpha.12"
+  resolved "https://registry.yarnpkg.com/@dojoengine/core/-/core-1.0.0-alpha.12.tgz#c83e18b67a602b7366fda57ec76fd534bb4b6e2f"
+  integrity sha512-KuinebMRPrsGebpQqW8oXVYRaCiUOdngjr4vN6WaWkUcyvFRfeJqzCemQdgqtOwvZZKjo6UIQNvYWPsuzjcxnA==
   dependencies:
     "@dojoengine/recs" "2.0.13"
     zod "^3.22.4"
 
-"@dojoengine/create-burner@^0.7.0-alpha.9":
-  version "0.7.9"
-  resolved "https://registry.yarnpkg.com/@dojoengine/create-burner/-/create-burner-0.7.9.tgz#8bd4129af2d9669e5648c1afdd8ebaaeb844ae5b"
-  integrity sha512-3wcyNuAgzuPRMh4chiFPxZXhyG1rQW75pxDJgiO8wl/0Z8MAvNBePqqjN0S5nAYoRZF0ATQq8VIpEMAbuPMqSg==
+"@dojoengine/create-burner@^1.0.0-alpha.9":
+  version "1.0.0-alpha.12"
+  resolved "https://registry.yarnpkg.com/@dojoengine/create-burner/-/create-burner-1.0.0-alpha.12.tgz#ff7ad8f12f2f9f3e48effd5a182fcbeaf013d29e"
+  integrity sha512-+kXiu1iwif/P9RlG/+jmZDFiS3Xz0wLINZx3+pv7jKcG2Vuxxxdiq4YfHlgAnHXQVvGbeVf/PLD7MCgdMbCiPA==
   dependencies:
-    "@dojoengine/core" "0.7.9"
+    "@dojoengine/core" "1.0.0-alpha.12"
     "@scure/bip32" "^1.4.0"
     "@starknet-react/core" "2.3.0"
     encoding "^0.1.13"
