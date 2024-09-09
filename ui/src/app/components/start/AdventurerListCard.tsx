@@ -43,7 +43,10 @@ export const AdventurerListCard = ({
   const [transferAddress, setTransferAddress] = useState("");
   const [validAddress, setValidAddress] = useState<string | false>(false);
   const [subdomain, setSubdomain] = useState(".ctrl");
-  const [resolvedAddresses, setResolvedAddresses] = useState({
+  const [resolvedAddresses, setResolvedAddresses] = useState<{
+    ctrl: string | null;
+    starknetId: string | null;
+  }>({
     ctrl: null,
     starknetId: null,
   });
