@@ -68,9 +68,14 @@ def parse_string(value):
 
 
 def serialize_string(value):
-    # Assuming the input is a hexadecimal string
-    # Convert it back to bytes and then to a UTF-8 string
-    return bytes.fromhex(str(value)).decode("utf-8")
+    if value is None:
+        return None
+    try:
+        # Try to decode as UTF-8
+        return bytes.fromhex(str(value)).decode('utf-8')
+    except UnicodeDecodeError:
+        # If UTF-8 decoding fails, return the original hexadecimal string
+        return str(value)
 
 
 def parse_class(value):
