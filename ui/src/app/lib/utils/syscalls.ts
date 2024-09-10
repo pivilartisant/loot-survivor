@@ -409,14 +409,23 @@ export function createSyscalls({
   const addApprovalCalls = (
     spawnCalls: Call[],
     dollarPrice: bigint,
+    freeVRF: boolean,
     costToPlay?: number
   ) => [
     ...spawnCalls,
-    {
-      contractAddress: ethContract?.address ?? "",
-      entrypoint: "approve",
-      calldata: [gameContract?.address ?? "", dollarPrice.toString(), "0"],
-    },
+    ...(freeVRF
+      ? []
+      : [
+          {
+            contractAddress: ethContract?.address ?? "",
+            entrypoint: "approve",
+            calldata: [
+              gameContract?.address ?? "",
+              dollarPrice.toString(),
+              "0",
+            ],
+          },
+        ]),
     {
       contractAddress: lordsContract?.address ?? "",
       entrypoint: "approve",
@@ -466,7 +475,12 @@ export function createSyscalls({
       }
 
       if (goldenTokenId === "0") {
-        spawnCalls = addApprovalCalls(spawnCalls, dollarPrice, costToPlay);
+        spawnCalls = addApprovalCalls(
+          spawnCalls,
+          dollarPrice,
+          freeVRF,
+          costToPlay
+        );
       }
     }
 
