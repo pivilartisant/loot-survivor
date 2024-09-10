@@ -1554,6 +1554,8 @@ export function createSyscalls({
     recipient: string
   ) => {
     try {
+      startLoading("Transfer", "Transferring Adventurer", undefined, undefined);
+
       const transferTx = {
         contractAddress: gameContract?.address ?? "",
         entrypoint: "transfer_from",
@@ -1578,9 +1580,10 @@ export function createSyscalls({
       });
 
       getBalances();
+      stopLoading("Transferred Adventurer", false, "Transfer");
     } catch (error) {
       console.error(error);
-      throw error;
+      stopLoading(error, true);
     }
   };
 
