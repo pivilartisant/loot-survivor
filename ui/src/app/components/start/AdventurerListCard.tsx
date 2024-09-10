@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/app/components/buttons/Button";
 import { Adventurer } from "@/app/types";
 import Info from "@/app/components/adventurer/Info";
 import {
   AccountInterface,
   Contract,
-  validateAndParseAddress,
-  constants,
+  // validateAndParseAddress,
+  // constants,
 } from "starknet";
 import useTransactionCartStore from "@/app/hooks/useTransactionCartStore";
-import { useAccount, useProvider } from "@starknet-react/core";
+import { useAccount } from "@starknet-react/core";
 import useAdventurerStore from "@/app/hooks/useAdventurerStore";
-import { padAddress } from "@/app/lib/utils";
-import { StarknetIdNavigator } from "starknetid.js";
+// import { padAddress } from "@/app/lib/utils";
+// import { StarknetIdNavigator } from "starknetid.js";
 import { CartridgeIcon, StarknetIdIcon } from "../icons/Icons";
 
 export interface AdventurerListCardProps {
@@ -33,76 +33,76 @@ export const AdventurerListCard = ({
   handleSwitchAdventurer,
   transferAdventurer,
 }: AdventurerListCardProps) => {
-  const { account, address } = useAccount();
-  const { provider } = useProvider();
-  const starknetIdNavigator = new StarknetIdNavigator(
-    provider,
-    constants.StarknetChainId.SN_MAIN
-  );
+  const { address } = useAccount();
+  // const { provider } = useProvider();
+  // const starknetIdNavigator = new StarknetIdNavigator(
+  //   provider,
+  //   constants.StarknetChainId.SN_MAIN
+  // );
   const [isTransferOpen, setIsTransferOpen] = useState(false);
   const [transferAddress, setTransferAddress] = useState("");
-  const [validAddress, setValidAddress] = useState<string | false>(false);
-  const [subdomain, setSubdomain] = useState(".ctrl");
-  const [resolvedAddresses, setResolvedAddresses] = useState<{
-    ctrl: string | null;
-    starknetId: string | null;
-  }>({
-    ctrl: null,
-    starknetId: null,
-  });
+  // const [validAddress, setValidAddress] = useState<string | false>(false);
+  // const [subdomain, setSubdomain] = useState(".ctrl");
+  // const [resolvedAddresses, setResolvedAddresses] = useState<{
+  //   ctrl: string | null;
+  //   starknetId: string | null;
+  // }>({
+  //   ctrl: null,
+  //   starknetId: null,
+  // });
 
   const setAdventurer = useAdventurerStore((state) => state.setAdventurer);
 
-  useEffect(() => {
-    const validateAddress = async () => {
-      try {
-        // Try to resolve Starknet ID with .ctrl
-        const ctrlId = transferAddress + ".ctrl.stark";
-        const ctrlAddress = await starknetIdNavigator.getAddressFromStarkName(
-          ctrlId
-        );
+  // useEffect(() => {
+  //   const validateAddress = async () => {
+  //     try {
+  //       // Try to resolve Starknet ID with .ctrl
+  //       const ctrlId = transferAddress + ".ctrl.stark";
+  //       const ctrlAddress = await starknetIdNavigator.getAddressFromStarkName(
+  //         ctrlId
+  //       );
 
-        // Try to resolve Starknet ID without subdomain
-        const starknetId = transferAddress + ".stark";
-        const starknetIdAddress =
-          await starknetIdNavigator.getAddressFromStarkName(starknetId);
+  //       // Try to resolve Starknet ID without subdomain
+  //       const starknetId = transferAddress + ".stark";
+  //       const starknetIdAddress =
+  //         await starknetIdNavigator.getAddressFromStarkName(starknetId);
 
-        setResolvedAddresses({
-          ctrl: ctrlAddress || null,
-          starknetId: starknetIdAddress || null,
-        });
+  //       setResolvedAddresses({
+  //         ctrl: ctrlAddress || null,
+  //         starknetId: starknetIdAddress || null,
+  //       });
 
-        // Set validAddress based on the current subdomain
-        if (
-          subdomain === ".ctrl" &&
-          ctrlAddress &&
-          !transferAddress.startsWith("0x")
-        ) {
-          setValidAddress(ctrlAddress);
-        } else if (
-          subdomain === "" &&
-          starknetIdAddress &&
-          !transferAddress.startsWith("0x")
-        ) {
-          setValidAddress(starknetIdAddress);
-        } else {
-          // If not a Starknet ID, validate as a regular address
-          const paddedAddress = padAddress(transferAddress.toLowerCase());
-          if (paddedAddress.length === 66 && transferAddress.startsWith("0x")) {
-            const parsedAddress = validateAndParseAddress(paddedAddress);
-            setValidAddress(parsedAddress);
-          } else {
-            setValidAddress(false);
-          }
-        }
-      } catch {
-        setValidAddress(false);
-        setResolvedAddresses({ ctrl: null, starknetId: null });
-      }
-    };
+  //       // Set validAddress based on the current subdomain
+  //       if (
+  //         subdomain === ".ctrl" &&
+  //         ctrlAddress &&
+  //         !transferAddress.startsWith("0x")
+  //       ) {
+  //         setValidAddress(ctrlAddress);
+  //       } else if (
+  //         subdomain === "" &&
+  //         starknetIdAddress &&
+  //         !transferAddress.startsWith("0x")
+  //       ) {
+  //         setValidAddress(starknetIdAddress);
+  //       } else {
+  //         // If not a Starknet ID, validate as a regular address
+  //         const paddedAddress = padAddress(transferAddress.toLowerCase());
+  //         if (paddedAddress.length === 66 && transferAddress.startsWith("0x")) {
+  //           const parsedAddress = validateAndParseAddress(paddedAddress);
+  //           setValidAddress(parsedAddress);
+  //         } else {
+  //           setValidAddress(false);
+  //         }
+  //       }
+  //     } catch {
+  //       setValidAddress(false);
+  //       setResolvedAddresses({ ctrl: null, starknetId: null });
+  //     }
+  //   };
 
-    validateAddress();
-  }, [transferAddress, subdomain, starknetIdNavigator]);
+  //   validateAddress();
+  // }, [transferAddress, subdomain, starknetIdNavigator]);
 
   const addToCalls = useTransactionCartStore((state) => state.addToCalls);
 
@@ -135,6 +135,7 @@ export const AdventurerListCard = ({
             variant={"token"}
             onClick={() => setIsTransferOpen(!isTransferOpen)}
             className={`w-1/2 ${isTransferOpen && "animate-pulse"}`}
+            disabled={true}
           >
             Transfer
           </Button>
@@ -148,32 +149,32 @@ export const AdventurerListCard = ({
                   </span>
                   <span className="flex flex-row w-1/4 justify-end gap-2">
                     <Button
-                      onClick={() => setSubdomain(".ctrl")}
-                      variant={
-                        subdomain === ".ctrl" || resolvedAddresses.ctrl
-                          ? "default"
-                          : "ghost"
-                      }
-                      className={
-                        subdomain !== ".ctrl" && resolvedAddresses.ctrl
-                          ? "animate-pulse"
-                          : ""
-                      }
+                    // onClick={() => setSubdomain(".ctrl")}
+                    // variant={
+                    //   subdomain === ".ctrl" || resolvedAddresses.ctrl
+                    //     ? "default"
+                    //     : "ghost"
+                    // }
+                    // className={
+                    //   subdomain !== ".ctrl" && resolvedAddresses.ctrl
+                    //     ? "animate-pulse"
+                    //     : ""
+                    // }
                     >
                       <CartridgeIcon className="w-6 h-6" />
                     </Button>
                     <Button
-                      onClick={() => setSubdomain("")}
-                      variant={
-                        subdomain === "" || resolvedAddresses.starknetId
-                          ? "default"
-                          : "ghost"
-                      }
-                      className={
-                        subdomain !== "" && resolvedAddresses.starknetId
-                          ? "animate-pulse"
-                          : ""
-                      }
+                    // onClick={() => setSubdomain("")}
+                    // variant={
+                    //   subdomain === "" || resolvedAddresses.starknetId
+                    //     ? "default"
+                    //     : "ghost"
+                    // }
+                    // className={
+                    //   subdomain !== "" && resolvedAddresses.starknetId
+                    //     ? "animate-pulse"
+                    //     : ""
+                    // }
                     >
                       <StarknetIdIcon className="w-6 h-6" />
                     </Button>
@@ -189,24 +190,24 @@ export const AdventurerListCard = ({
                     }}
                     className="p-1 h-12 text-2xl w-3/4 bg-terminal-black border border-terminal-green animate-pulse transform uppercase"
                   />
-                  {transferAddress && !validAddress && (
+                  {/* {transferAddress && !validAddress && (
                     <p className="absolute bottom-15 text-terminal-yellow">
                       INVALID ADDRESS!
                     </p>
-                  )}
+                  )} */}
                   <div className="flex flex-row gap-2 items-center">
                     <Button
                       size={"lg"}
-                      onClick={() => {
-                        transferAdventurer(
-                          account!,
-                          adventurer?.id!,
-                          address!,
-                          validAddress as string
-                        );
-                        setIsTransferOpen(false);
-                      }}
-                      disabled={!validAddress}
+                      // onClick={() => {
+                      //   transferAdventurer(
+                      //     account!,
+                      //     adventurer?.id!,
+                      //     address!,
+                      //     validAddress as string
+                      //   );
+                      //   setIsTransferOpen(false);
+                      // }}
+                      // disabled={!validAddress}
                     >
                       Send
                     </Button>
@@ -217,7 +218,7 @@ export const AdventurerListCard = ({
                         handleAddTransferTx(transferAddress);
                         setIsTransferOpen(false);
                       }}
-                      disabled={!validAddress}
+                      // disabled={!validAddress}
                     >
                       Add to Cart
                     </Button>
