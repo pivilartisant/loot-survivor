@@ -39,29 +39,14 @@ const TopUp = ({
 }: TopUpProps) => {
   const { address } = useNetworkAccount();
   const { connector } = useConnect();
-  const onSepolia = useUIStore((state) => state.onSepolia);
   const topUpAccount = useUIStore((state) => state.topUpAccount);
   const username = useUIStore((state) => state.username);
   const [copied, setCopied] = useState(false);
-  const [copiedLords, setCopiedLords] = useState(false);
-  const [copiedEth, setCopiedEth] = useState(false);
 
   const handleCopy = () => {
     copyToClipboard(padAddress(address!));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleCopyLords = () => {
-    copyToClipboard(lordsContract.address);
-    setCopiedLords(true);
-    setTimeout(() => setCopiedLords(false), 2000);
-  };
-
-  const handleCopyEth = () => {
-    copyToClipboard(ethContract.address);
-    setCopiedEth(true);
-    setTimeout(() => setCopiedEth(false), 2000);
   };
 
   return (

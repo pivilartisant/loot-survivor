@@ -9,8 +9,6 @@ import { NullAdventurer } from "@/app/types";
 import useNetworkAccount from "@/app/hooks/useNetworkAccount";
 import { displayAddress, padAddress, copyToClipboard } from "@/app/lib/utils";
 import { AccountInterface } from "starknet";
-import Eth from "public/icons/eth.svg";
-import Lords from "public/icons/lords.svg";
 import { CartridgeIcon } from "@/app/components/icons/Icons";
 import { checkCartridgeConnector } from "@/app/lib/connectors";
 import CartridgeConnector from "@cartridge/connector";
