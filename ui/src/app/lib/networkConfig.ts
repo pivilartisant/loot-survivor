@@ -76,9 +76,9 @@ export const networkConfig = {
     blockExplorerUrl: "",
     faucetUrl: "",
     masterAccount:
-      "0x5c84d31976a25d632deee7a1ed9bdbdc6795cb288103d7d601841030c976ee",
+      "0xb3ff441a68610b30fd5e2abbf3a1548eb6ba6f3559f2862bf2dc757e5828ca",
     masterPrivateKey:
-      "0x22ab3e9b8c4fdf2c187609cb52550424675bb8fc7ee8c06b0fc170e56889ec0",
+      "0x2bbf4f9fd0bbb2e60b0316c1fe0b76cf7a4d0198bd493ced9b8df2a3a24d68a",
     accountClassHash:
       "0x5400e90f7e0ae78bd02c77cd75527280470e2fe19c54970dd79dc37a9d3645c",
   },

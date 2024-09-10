@@ -42,9 +42,9 @@ export async function setup({ rpcUrl, network, setCreateBurner }: SetupProps) {
   return {
     config: {
       masterAddress:
-        "0x5c84d31976a25d632deee7a1ed9bdbdc6795cb288103d7d601841030c976ee",
+        networkConfig[network!].masterAccount,
       masterPrivateKey:
-        "0x22ab3e9b8c4fdf2c187609cb52550424675bb8fc7ee8c06b0fc170e56889ec0",
+        networkConfig[network!].masterPrivateKey,
     },
     burnerManager,
     dojoProvider,
