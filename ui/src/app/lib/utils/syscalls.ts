@@ -286,7 +286,7 @@ export function createSyscalls({
     const result = await pragmaContract.call("get_data_median", [
       DataType.SpotEntry("19514442401534788"),
     ]);
-    const dollarToWei = BigInt(1) * BigInt(10) ** BigInt(18);
+    const dollarToWei = BigInt(5) * BigInt(10) ** BigInt(17);
     const ethToWei = (result as PragmaPrice).price / BigInt(10) ** BigInt(8);
     const dollarPrice = dollarToWei / ethToWei;
 
@@ -1572,6 +1572,10 @@ export function createSyscalls({
       if (!result) {
         throw new Error("Transaction did not complete successfully.");
       }
+
+      setData("adventurersByOwnerQuery", {
+        adventurers: [adventurer],
+      });
 
       getBalances();
     } catch (error) {
