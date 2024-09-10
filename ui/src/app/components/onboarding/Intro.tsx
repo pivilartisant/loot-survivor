@@ -71,7 +71,7 @@ const Intro = () => {
                 disabled={true}
               >
                 {/* Play on {network} */}
-                Full Launch Tomorrow
+                Starting Soon
               </Button>
             </div>
           </div>
