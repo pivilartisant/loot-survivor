@@ -146,8 +146,8 @@ export const ProfileDialog = ({
                 Topup
               </h2>
               <p className="hidden sm:block sm:text-lg">
-                Low on tokens? Below are the token addresses, make sure you
-                transfer to the address at the top!
+                Low on tokens? Transfer $LORDS and $ETH to the address at the
+                top!
               </p>
             </div>
           )}
