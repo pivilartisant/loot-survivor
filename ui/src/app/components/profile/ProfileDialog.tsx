@@ -151,22 +151,6 @@ export const ProfileDialog = ({
                 Low on tokens? Below are the token addresses, make sure you
                 transfer to the address at the top!
               </p>
-              <div className="flex flex-col gap-2">
-                <span className="flex flex-row items-center gap-2 relative">
-                  <Lords className="self-center sm:w-8 sm:h-8  h-3 w-3 fill-current mr-1" />
-                  <span className="uppercase">
-                    {displayAddress(lordsContractAddress)}
-                  </span>
-                </span>
-                <span className="flex flex-col relative">
-                  <span className="flex flex-row items-center gap-2 relative">
-                    <Eth className="self-center sm:w-8 sm:h-8  h-3 w-3 fill-current mr-1" />
-                    <span className="uppercase">
-                      {displayAddress(ethContractAddress)}
-                    </span>
-                  </span>
-                </span>
-              </div>
             </div>
           )}
           <div className="flex flex-col items-center sm:border sm:border-terminal-green p-5 text-center sm:gap-10 z-1 sm:h-[400px] sm:w-1/3">
