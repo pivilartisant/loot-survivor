@@ -678,15 +678,16 @@ function critical_hit_bonus(
 function weapon_special_bonus(
   damage: number,
   weapon: Item,
-  beast: Beast,
+  beast: any,
   ring: Item | undefined
 ): number {
+  console.log(beast);
   let special2_bonus =
-    weapon.special2 && weapon.special2 === beast.specialName
+    weapon.special2 && weapon.special2 === beast.special2
       ? Math.floor(damage * 8)
       : 0;
   let special3_bonus =
-    weapon.special3 && weapon.special3 === beast.specialName
+    weapon.special3 && weapon.special3 === beast.special3
       ? Math.floor(damage * 2)
       : 0;
 
