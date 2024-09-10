@@ -1875,21 +1875,26 @@
     "@babel/helper-validator-identifier" "^7.24.7"
     to-fast-properties "^2.0.0"
 
-"@cartridge/connector@^0.3.43":
-  version "0.3.43"
-  resolved "https://registry.yarnpkg.com/@cartridge/connector/-/connector-0.3.43.tgz#381971916fe309544d5fb063a76433561d868040"
-  integrity sha512-RU8IxFu2NG3fta0zddT/+82Bv1MyYQ92Z1XDwvj7WRCXGV2MdCwu8+etou7uCdwFkkZ3kiT1EB41ky6umVaOgg==
+"@cartridge/account-wasm@^0.3.44":
+  version "0.3.44"
+  resolved "https://registry.yarnpkg.com/@cartridge/account-wasm/-/account-wasm-0.3.44.tgz#02b001d529343415367ede24884b085ea793344c"
+  integrity sha512-nC4nSk1P9FIHzbTnjNxhU0ChwjQ6NUJTOUgRHt6l3390W5sNEL7rbXMi6gWox3780C5NGd+G+Z38iZ9zXYTsHg==
+
+"@cartridge/connector@^0.3.44":
+  version "0.3.44"
+  resolved "https://registry.yarnpkg.com/@cartridge/connector/-/connector-0.3.44.tgz#4d66305edaecf89c2e8d524ff31edbd510819a0e"
+  integrity sha512-aF3VSJauX+G717X/7iIGsVj48mGAZTKws+aIgrOZDf2Tp0mHNo4AaCZSvFAdhobyyz/YZqagEOzAjGZd2hzshA==
   dependencies:
-    "@cartridge/controller" "^0.3.43"
+    "@cartridge/controller" "^0.3.44"
     "@starknet-react/core" "^2.1.5"
     starknet "^6.11.0"
-    typescript "^5.4.5"
 
-"@cartridge/controller@^0.3.43":
-  version "0.3.43"
-  resolved "https://registry.yarnpkg.com/@cartridge/controller/-/controller-0.3.43.tgz#cfc1d90c6c603ab3c06fe9a46f24917f929de976"
-  integrity sha512-naR4FiJVFU0BSFgOSVq7ttaGlQCA/cjGIV96b4SRuodTmkH0ViEwutsSX3zqWEyYP56Yn1xXWsEFf5ENa9X9eQ==
+"@cartridge/controller@^0.3.44":
+  version "0.3.44"
+  resolved "https://registry.yarnpkg.com/@cartridge/controller/-/controller-0.3.44.tgz#27cbe12fe8b147c0d91d7f77c3686a2ca0a8941c"
+  integrity sha512-T4KBdf8L3Z5Lk4Q0njnOXN/Kn9Rm1nF8abc7vKJIikiOCK2Sq0bzVpKoQBkUGmbJbu8m71rE+pf1qX8VWNuKYA==
   dependencies:
+    "@cartridge/account-wasm" "^0.3.44"
     "@cartridge/penpal" "^6.2.3"
     base64url "^3.0.1"
     cbor-x "^1.5.0"
@@ -7759,11 +7764,6 @@ typescript@5.0.2:
   version "5.0.2"
   resolved "https://registry.npmjs.org/typescript/-/typescript-5.0.2.tgz"
   integrity sha512-wVORMBGO/FAs/++blGNeAVdbNKtIh1rbBL2EyQ1+J9lClJ93KiiKe8PmFIVdXhHcyv44SL9oglmfeSsndo0jRw==
-
-typescript@^5.4.5:
-  version "5.5.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.5.4.tgz#d9852d6c82bad2d2eda4fd74a5762a8f5909e9ba"
-  integrity sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==
 
 ufo@^1.3.2, ufo@^1.4.0, ufo@^1.5.3:
   version "1.5.3"
