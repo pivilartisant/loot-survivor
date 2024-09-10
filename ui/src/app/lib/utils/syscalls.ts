@@ -606,6 +606,10 @@ export function createSyscalls({
           );
           for (let itemsLeveledUpEvent of itemsLeveledUpEvents) {
             for (let itemLeveled of itemsLeveledUpEvent.data[1]) {
+              const ownedItemIndex =
+                queryData.itemsByAdventurerQuery?.items.findIndex(
+                  (item: Item) => item.item == itemLeveled.item
+                );
               if (itemLeveled.suffixUnlocked) {
                 if (itemEntropy === BigInt(0)) {
                   setFetchUnlocksEntropy(true);
@@ -614,6 +618,24 @@ export function createSyscalls({
               if (itemLeveled.newLevel === 20) {
                 setG20Unlock(true);
               }
+              setData(
+                "itemsByAdventurerQuery",
+                itemLeveled.special1,
+                "special1",
+                ownedItemIndex
+              );
+              setData(
+                "itemsByAdventurerQuery",
+                itemLeveled.special2,
+                "special2",
+                ownedItemIndex
+              );
+              setData(
+                "itemsByAdventurerQuery",
+                itemLeveled.special3,
+                "special3",
+                ownedItemIndex
+              );
             }
           }
         }
@@ -824,6 +846,10 @@ export function createSyscalls({
         );
         for (let itemsLeveledUpEvent of itemsLeveledUpEvents) {
           for (let itemLeveled of itemsLeveledUpEvent.data[1]) {
+            const ownedItemIndex =
+              queryData.itemsByAdventurerQuery?.items.findIndex(
+                (item: Item) => item.item == itemLeveled.item
+              );
             if (itemLeveled.suffixUnlocked) {
               if (itemEntropy === BigInt(0)) {
                 setFetchUnlocksEntropy(true);
@@ -832,6 +858,24 @@ export function createSyscalls({
             if (itemLeveled.newLevel === 20) {
               setG20Unlock(true);
             }
+            setData(
+              "itemsByAdventurerQuery",
+              itemLeveled.special1,
+              "special1",
+              ownedItemIndex
+            );
+            setData(
+              "itemsByAdventurerQuery",
+              itemLeveled.special2,
+              "special2",
+              ownedItemIndex
+            );
+            setData(
+              "itemsByAdventurerQuery",
+              itemLeveled.special3,
+              "special3",
+              ownedItemIndex
+            );
           }
         }
 
