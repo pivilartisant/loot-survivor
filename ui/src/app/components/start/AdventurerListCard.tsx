@@ -50,6 +50,10 @@ export const AdventurerListCard = ({
     ctrl: null,
     starknetId: null,
   });
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationAction, setConfirmationAction] = useState<
+    "send" | "addToCart" | null
+  >(null);
 
   const setAdventurer = useAdventurerStore((state) => state.setAdventurer);
 
@@ -123,6 +127,21 @@ export const AdventurerListCard = ({
       calldata: [address!, recipient, adventurer?.id?.toString() ?? "", "0"],
     };
     addToCalls(transferTx);
+  };
+
+  const handleConfirmAction = () => {
+    if (confirmationAction === "send") {
+      transferAdventurer(
+        account!,
+        adventurer?.id!,
+        address!,
+        validAddress as string
+      );
+    } else if (confirmationAction === "addToCart") {
+      handleAddTransferTx(validAddress as string);
+    }
+    setShowConfirmation(false);
+    setIsTransferOpen(false);
   };
 
   return (
@@ -208,13 +227,8 @@ export const AdventurerListCard = ({
                     <Button
                       size={"lg"}
                       onClick={() => {
-                        transferAdventurer(
-                          account!,
-                          adventurer?.id!,
-                          address!,
-                          validAddress as string
-                        );
-                        setIsTransferOpen(false);
+                        setConfirmationAction("send");
+                        setShowConfirmation(true);
                       }}
                       disabled={!validAddress}
                     >
@@ -224,14 +238,42 @@ export const AdventurerListCard = ({
                       size={"lg"}
                       variant={"ghost"}
                       onClick={() => {
-                        handleAddTransferTx(transferAddress);
-                        setIsTransferOpen(false);
+                        setConfirmationAction("addToCart");
+                        setShowConfirmation(true);
                       }}
                       disabled={!validAddress}
                     >
                       Add to Cart
                     </Button>
                   </div>
+                  {showConfirmation && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                      <div className="bg-terminal-black border border-terminal-green p-4 rounded-lg max-w-md w-full">
+                        <div className="mb-4">
+                          <h1 className="text-xl font-bold">Confirm Action</h1>
+                        </div>
+                        <p className="mb-2">
+                          Are you sure you want to{" "}
+                          {confirmationAction === "send"
+                            ? "send"
+                            : "add to cart"}{" "}
+                          this adventurer?
+                        </p>
+                        <p className="mb-4">
+                          Recipient address: {validAddress}
+                        </p>
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            onClick={() => setShowConfirmation(false)}
+                            variant="secondary"
+                          >
+                            Cancel
+                          </Button>
+                          <Button onClick={handleConfirmAction}>Confirm</Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </>
