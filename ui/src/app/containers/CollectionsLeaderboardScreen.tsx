@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
-import { formatXP, padAddress } from "@/app/lib/utils";
-import { collectionData, maxGamesPlayable } from "@/app/lib/constants";
-import { useQuery } from "@apollo/client";
 import { getCollectionsTotals } from "@/app/hooks/graphql/queries";
-import { gameClient } from "@/app/lib/clients";
-import { networkConfig } from "@/app/lib/networkConfig";
 import useUIStore from "@/app/hooks/useUIStore";
+import { gameClient } from "@/app/lib/clients";
+import { collectionData, maxGamesPlayable } from "@/app/lib/constants";
+import { networkConfig } from "@/app/lib/networkConfig";
+import { formatXP, padAddress } from "@/app/lib/utils";
+import { useQuery } from "@apollo/client";
+import React, { useMemo } from "react";
 
 interface CollectionTotal {
   xp: number;
