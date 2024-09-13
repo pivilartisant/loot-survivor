@@ -35,6 +35,7 @@ export interface Encounter {
   tier: string | number;
   level?: number;
   power?: number;
+  gold?: number;
   health?: number;
   location?: string;
   dodgeRoll?: number;

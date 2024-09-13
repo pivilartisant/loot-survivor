@@ -6,6 +6,7 @@ import {
   DownArrowIcon,
   HeartVitalityIcon,
   MagicIcon,
+  SkullCrossedBonesIcon,
 } from "@/app/components/icons/Icons";
 import LootIcon from "@/app/components/icons/LootIcon";
 import useAdventurerStore from "@/app/hooks/useAdventurerStore";
@@ -108,9 +109,44 @@ const Paths = () => {
               <div className="uppercase ml-2">
                 Path {steps.map((step) => step.previousDecision).join(" -> ")}
               </div>
-              <table className="border-separate border-spacing-0 w-full sm:text-sm xl:text-sm 2xl:text-sm block overflow-x-scroll sm:overflow-y-scroll default-scroll p-2">
+              {steps.map(({ encounter, adventurer }, stepIndex) => {
+                if (!encounter && adventurer.health! <= 0) {
+                  return (
+                    <div
+                      key={stepIndex}
+                      className="flex flex-row uppercase p-2 text-red-500 shadow-none items-center gap-2"
+                    >
+                      Death
+                      <SkullCrossedBonesIcon />
+                    </div>
+                  );
+                }
+                if (!encounter) {
+                  let levelUps =
+                    calculateLevel(adventurer.xp || 4) - (startingLevel || 1);
+
+                  return (
+                    <div
+                      key={stepIndex}
+                      className="flex flex-row gap-1 uppercase p-2"
+                    >
+                      {"Level Up!"}
+                      <span className="text-terminal-yellow flex">
+                        {Array.from({ length: levelUps }).map((_, index) => (
+                          <DownArrowIcon
+                            key={index}
+                            className="h-4 transform rotate-180"
+                          />
+                        ))}
+                      </span>
+                    </div>
+                  );
+                }
+                return null; // Return null for encounters that will be rendered in the table
+              })}
+              <table className="border-separate border-spacing-0 w-full sm:text-sm xl:text-sm 2xl:text-sm block h-full p-2">
                 <thead
-                  className="border border-terminal-green sticky top-0 bg-terminal-black uppercase"
+                  className="border border-terminal-green top-0 bg-terminal-black uppercase"
                   style={{ zIndex: 8 }}
                 >
                   <tr className="border border-terminal-green">
@@ -138,20 +174,32 @@ const Paths = () => {
                     <th className="relative py-2 px-1 border-b border-terminal-green">
                       Tip
                     </th>
+                    <th className="relative py-2 px-1 border-b border-terminal-green">
+                      Gold
+                    </th>
                     <th className="py-2 px-1 sm:pr-3 border-b border-terminal-green">
                       Crit
                     </th>
-                    <th className="py-2 px-1 border-b border-terminal-green">
-                      Next (Lvl)
+                    <th className="relative py-2 px-1 border-b border-terminal-green">
+                      Next
+                      <span className="absolute left-1/2 transform -translate-x-1/2 bottom-0 text-xs text-terminal-yellow">
+                        +LVL
+                      </span>
                     </th>
                     <th className="py-2 px-1 border-b border-terminal-green">
-                      Ambush
+                      Damage
                     </th>
-                    <th className="py-2 px-1 border-b border-terminal-green">
-                      Gold after
+                    <th className="relative py-2 px-1 border-b border-terminal-green">
+                      Gold
+                      <span className="absolute left-1/2 transform -translate-x-1/2 bottom-0 text-xs text-terminal-yellow">
+                        After
+                      </span>
                     </th>
-                    <th className="py-2 px-1 border-b border-terminal-green">
-                      Health after
+                    <th className="relative py-2 px-1 border-b border-terminal-green">
+                      Health
+                      <span className="absolute left-1/2 transform -translate-x-1/2 bottom-0 text-xs text-terminal-yellow">
+                        After
+                      </span>
                     </th>
                   </tr>
                 </thead>
@@ -160,42 +208,11 @@ const Paths = () => {
                   {adventurerEntropy ? (
                     React.Children.toArray(
                       steps.map(({ encounter, adventurer }, index) => {
-                        if (!encounter && adventurer.health! <= 0) {
-                          return (
-                            <tr>
-                              <td className="uppercase text-red-500">
-                                <span className="flex flex-row">Death</span>
-                              </td>
-                            </tr>
-                          );
+                        if (!encounter || adventurer.health! <= 0) {
+                          return null; // Skip rendering for death and level up, as they're now outside the table
                         }
                         const nextAdventurerState =
                           steps[index + 1]?.adventurer || adventurer;
-                        if (!encounter) {
-                          let levelUps =
-                            calculateLevel(adventurer.xp || 4) -
-                            (startingLevel || 1);
-
-                          return (
-                            <tr>
-                              <td aria-colspan={12}>
-                                <span className="flex flex-row gap-1 justify-center">
-                                  {"Level Up!"}
-                                  <span className="text-terminal-yellow flex">
-                                    {Array.from({ length: levelUps }).map(
-                                      (_, index) => (
-                                        <DownArrowIcon
-                                          key={index}
-                                          className="h-4 transform rotate-180"
-                                        />
-                                      )
-                                    )}
-                                  </span>
-                                </span>
-                              </td>
-                            </tr>
-                          );
-                        }
                         let [special2, special3] = encounter.specialName?.split(
                           " "
                         ) || ["no", "no"];
@@ -217,6 +234,9 @@ const Paths = () => {
                                   item.special3 === special3
                               )
                             : false;
+
+                        let levelUps =
+                          calculateLevel(encounter.nextXp) - adventurer?.level!;
 
                         return (
                           <tr
@@ -279,7 +299,7 @@ const Paths = () => {
                                   </div>
                                 )}
                                 {encounter.type === "Loot" && (
-                                  <div className="flex items-center">
+                                  <div className="flex items-center whitespace-nowrap">
                                     {" "}
                                     {
                                       gameData.ITEMS[encounter.tier as number]
@@ -326,7 +346,7 @@ const Paths = () => {
                               </span>
                             </td>
                             <td className="py-2 border-b border-terminal-green">
-                              <span className="flex justify-center">
+                              <span className="flex justify-center uppercase">
                                 {encounter.location}
                               </span>
                             </td>
@@ -355,6 +375,16 @@ const Paths = () => {
                                 )}
                               </span>
                             </td>
+                            <td className="py-2 border-b border-terminal-green">
+                              <span className="flex justify-center uppercase">
+                                {encounter.encounter === "Beast" && (
+                                  <span className="flex flex-row items-center text-terminal-yellow">
+                                    <CoinIcon className="h-4 fill-current text-terminal-yellow" />
+                                    {encounter.gold}
+                                  </span>
+                                )}
+                              </span>
+                            </td>
                             <td
                               className={`py-2 border-b border-terminal-green ${
                                 encounter.isCritical!
@@ -373,10 +403,18 @@ const Paths = () => {
                               )}
                             </td>
                             <td className="py-2 border-b border-terminal-green">
-                              <span className="flex justify-center text-terminal-yellow">
-                                {nextAdventurerState.xp} (
-                                {calculateLevel(Number(nextAdventurerState.xp))}
-                                )
+                              <span className="flex flex-row gap-1 justify-center">
+                                {encounter.nextXp}{" "}
+                                <span className="text-terminal-yellow flex">
+                                  {Array.from({ length: levelUps }).map(
+                                    (_, index) => (
+                                      <DownArrowIcon
+                                        key={index}
+                                        className="h-4 transform rotate-180"
+                                      />
+                                    )
+                                  )}
+                                </span>
                               </span>
                             </td>
                             <td className="py-2 border-b border-terminal-green">

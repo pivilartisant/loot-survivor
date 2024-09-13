@@ -82,7 +82,7 @@ const EncounterTable = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <table className="border-separate border-spacing-0 w-full sm:text-sm xl:text-sm 2xl:text-sm block h-full">
+      <table className="border-separate border-spacing-0 w-full sm:text-sm xl:text-sm 2xl:text-sm block h-full p-2">
         <thead
           className="border border-terminal-green top-0 bg-terminal-black uppercase"
           style={{ zIndex: 8 }}
