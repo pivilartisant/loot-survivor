@@ -866,11 +866,7 @@ function Home() {
                 {screen === "player" && <Player gameContract={gameContract!} />}
                 {screen === "wallet" && <WalletSelect />}
 
-                {encounterTable && (
-                  <div className="absolute top-1/2 right-1/2 transform -translate-x-1/2 -translate-y-1/2  z-10">
-                    <EncounterDialog />
-                  </div>
-                )}
+                {encounterTable && <EncounterDialog />}
 
                 {showProfile && (
                   <div className="absolute flex items-center justify-center top-0 right-0 left-0 w-full h-full bg-black/50">
