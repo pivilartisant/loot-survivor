@@ -410,7 +410,8 @@ export function createSyscalls({
     spawnCalls: Call[],
     dollarPrice: bigint,
     freeVRF: boolean,
-    costToPlay?: number
+    costToPlay?: number,
+    goldenTokenId?: string
   ) => [
     ...(freeVRF
       ? []
@@ -425,16 +426,19 @@ export function createSyscalls({
             ],
           },
         ]),
-
-    {
-      contractAddress: lordsContract?.address ?? "",
-      entrypoint: "approve",
-      calldata: [
-        gameContract?.address ?? "",
-        (costToPlay! * 1.1)!.toString(),
-        "0",
-      ],
-    },
+    ...(goldenTokenId === "0"
+      ? [
+          {
+            contractAddress: lordsContract?.address ?? "",
+            entrypoint: "approve",
+            calldata: [
+              gameContract?.address ?? "",
+              (costToPlay! * 1.1)!.toString(),
+              "0",
+            ],
+          },
+        ]
+      : []),
     ...spawnCalls,
   ];
 
@@ -478,21 +482,18 @@ export function createSyscalls({
       if (!enoughEth && !freeVRF) {
         return handleInsufficientFunds("eth");
       }
-      if (!enoughLords) {
+      if (!enoughLords && goldenTokenId === "0") {
         return handleInsufficientFunds("lords");
       }
 
-      if (goldenTokenId === "0") {
-        spawnCalls = addApprovalCalls(
-          spawnCalls,
-          dollarPrice,
-          freeVRF,
-          costToPlay
-        );
-      }
+      spawnCalls = addApprovalCalls(
+        spawnCalls,
+        dollarPrice,
+        freeVRF,
+        costToPlay,
+        goldenTokenId
+      );
     }
-
-    console.log(spawnCalls);
 
     await executeSpawn(formData, spawnCalls);
   };
