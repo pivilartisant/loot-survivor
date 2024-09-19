@@ -32,13 +32,27 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "starknetkit/injected": ["./node_modules/starknetkit/dist/injectedConnector.d.ts"],
-      "starknetkit/argentMobile": ["./node_modules/starknetkit/dist/argentMobile.d.ts"],
-      "starknetkit/webwallet": ["./node_modules/starknetkit/dist/webwalletConnector.d.ts"]
+      "@/*": [
+        "./*"
+      ],
+      "starknetkit/injected": [
+        "./node_modules/starknetkit/dist/injectedConnector.d.ts"
+      ],
+      "starknetkit/argentMobile": [
+        "./node_modules/starknetkit/dist/argentMobile.d.ts"
+      ],
+      "starknetkit/webwallet": [
+        "./node_modules/starknetkit/dist/webwalletConnector.d.ts"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "dist/types/**/*.ts"
+  ],
   "exclude": [
     "node_modules"
   ]
